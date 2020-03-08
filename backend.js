@@ -1,7 +1,4 @@
-import * as fetch from 'node-fetch';
-import * as SMS from 'expo-sms';
-import * as  GetLocation from 'react-native-get-location'
-import * as fs from 'react-native-fs'
+const fetch = require("node-fetch"); 
 
 const twilioSID = "SK4479d9aec8b67ee4c4e8f515d1dcdf37"
 const twilioApiKey = "GKtLSZc47Rs8e3G9wXP8GbvdB7Z4Rzar"
@@ -12,6 +9,7 @@ function getRestaurant (latitude, longitude) {
         .then(res => res.json())
         .then(
             json => {
+                console.log(json); 
                 var output = {
                     "latitude": json.results[0].geometry.location.lat,
                     "longitude": json.results[0].geometry.location.lng
@@ -46,3 +44,5 @@ function setHome (address) {
         )
     })
 }
+
+getRestaurant("43.866756", "-79.348833"); 

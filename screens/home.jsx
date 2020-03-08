@@ -6,22 +6,25 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions'; 
 
+
 const styles = StyleSheet.create({
   container: {
       flex: 2,
       justifyContent: "center",
       alignItems: "center"
   },
-  buttonContainer: {
-      flex: 1, 
-      
-  }, 
+
+   
   buttonStyle: {
-      flex: 1,
+      height: 100, 
+      width: '100%', 
+      backgroundColor: '#c471f5',
+      justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#DDDDDD',
-      padding: 10
+      opacity: 0.75,
+      borderRadius: 30
   },
+
   mapStyle: {
       width: Dimensions.get("window").width, 
       height: Dimensions.get("window").height
@@ -147,11 +150,14 @@ class GetHome extends Component {
                     ))}
                 </MapView>
             </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections}>
-                      <Text>Take me home!</Text>
-                </TouchableOpacity>
-            </View>
+            {userLocation && (
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
+                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+            
         </React.Fragment>);
   }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, TouchableOpacity, Dimensions } from 'react-native';
 import styled from 'styled-components';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -7,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: "column", 
+        margin: 10,
         justifyContent: "center",
     },
 
@@ -18,7 +20,6 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
         backgroundColor: "#636363",
         borderRadius: 20,
- 
     },
 
     headline: {
