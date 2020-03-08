@@ -10,20 +10,21 @@
   "dependencies": {
     "@react-navigation/native": "^5.0.9",
     "expo": "~36.0.0",
+    "expo-font": "~8.0.0",
+    "expo-linear-gradient": "~8.0.0",
     "expo-sms": "^8.0.0",
+    "native-base": "^2.13.8",
     "node-fetch": "^2.6.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
-    "react-native-web": "~0.11.7",
-    "styled-components": "^5.0.1",
     "react-native-get-location": "^1.4.2",
+    "react-native-linear-gradient": "^2.5.6",
     "react-native-maps": "0.26.1",
     "react-native-maps-directions": "^1.7.3",
     "react-native-sms": "^1.11.0",
-    "react-native-maps": "0.26.1",
-    "react-native-maps-directions": "^1.7.3",
-    "react-native-web": "~0.11.7"
+    "react-native-web": "~0.11.7",
+    "styled-components": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

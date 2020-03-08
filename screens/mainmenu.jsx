@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Button, Image } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components';
-import Icon from 'react-native-vector-icons/FontAwesome';
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 const styles = StyleSheet.create({
@@ -13,7 +12,13 @@ const styles = StyleSheet.create({
 
     buttonContainer: {
         margin: 20,
-        backgroundColor: "#000000"
+        paddingRight: 80,
+        paddingLeft: 80,
+        paddingTop: 30,
+        paddingBottom: 30,
+        backgroundColor: "#636363",
+        borderRadius: 20,
+ 
     },
 
 
@@ -23,7 +28,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
-
+   
 });
 
 
@@ -35,22 +40,26 @@ class MainMenu extends Component {
 
     render() {
         return (
-          <Container>
-
-
-            <View style={styles.container}>
-            <Text style={styles.headline}>Hello </Text>
-
-
-                <View style={styles.buttonContainer.button}>
-                    <Button title="Food" onPress={this.props.showFood} />
-
-                </View>
-
-                <View style={styles.buttonContainer}>
-                    <Button style={styles.button} title="Home" onPress={this.props.showHome} />
-                </View>
-            </View>
+            <Container>
+                
+                <Image source={require('assets/hammrd.png')} />
+               
+                <TouchableOpacity onPress={this.props.showFood}
+                    style={{ marginBottom: 30, height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
+                    <LinearGradient
+                        colors={['#c471f5', '#fa71cd']}
+                        style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
+                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium' }}>FOOD</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.props.showFood}
+                    style={{ height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
+                    <LinearGradient
+                        colors={['#c471f5', '#fa71cd']}
+                        style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
+                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium'}}>HOME</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
             </Container>
         );
     }
@@ -58,7 +67,7 @@ class MainMenu extends Component {
 
 const Container = styled.View`
     flex: 1;
-    background-color: #303030;
+    background-color: #fbfaff;
     justify-content: center;
     align-items: center;
 `;
@@ -66,7 +75,10 @@ const Container = styled.View`
 
 const Title = styled.Text`
     font-size: 30px;
-    color: #ffffff;
+    color: #000000;
+
 `;
+
+
 
 export default MainMenu;

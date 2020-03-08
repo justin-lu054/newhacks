@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { AppLoading } from 'expo';
+import { Asset } from 'expo-asset';
+import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
@@ -22,9 +25,9 @@ function getLocation () {
 }
 
 export default class App extends Component {
-
   state = {
-    screen: "main"
+    screen: "main",
+    isLoadingComplete: false
   }
 
   showFood = () => {
@@ -49,27 +52,48 @@ export default class App extends Component {
     return component; 
   }
 
-  onComponentMount(){ 
+  // Async stands for an asychronous function, the time it takes to complete is unknown at runtime
+  async _loadResourcesAsync() {
+    // We must always await a Promise as we do not know when it will be fulfilled or denied
+    await Promise.all([
+      Asset.loadAsync([
+        require('./assets/hammrd.png'),
+      ]),
+      Font.loadAsync({
+        'Suisse-Intl-Medium': require('./assets/fonts/Suisse-Intl-Medium.ttf'),
+      }),
+    ]);
+  }
+  
+  handleLoadingError(error) {
+    console.warn(error);
+  }
+
+  handleFinishLoading() {
+    this.setState({ isLoadingComplete: true })
+  }
+
+  componentDidMount(){ 
     getLocation()
   }
 
   render() {
-    
+    const { isLoadingComplete } = this.state;
+    if (!isLoadingComplete) {
+      return (
+        <AppLoading
+          startAsync={this._loadResourcesAsync}
+          onFinish={() => this.setState({ isLoadingComplete: true })}
+          onError={console.warn}
+        />
+      ); 
+    }
+
     return (
-      <React.Fragment>
-        
+      <>
         {this.getComponent()}
-      </React.Fragment>
+      </>
       
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
