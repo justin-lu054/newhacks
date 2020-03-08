@@ -108,4 +108,5 @@ const Title = styled.Text`
   font-size: 30px;
   color: #000000;
 `;
+
 export default MainMenu;
