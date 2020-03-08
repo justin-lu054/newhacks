@@ -5,7 +5,7 @@ import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Image, Text, View } from "react-native";
 import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -25,6 +25,8 @@ function sendMessage(message, to) {
     .catch((err) => alert(err)); 
 }
 
+
+
 const Stack = createStackNavigator();
 
 const styles = StyleSheet.create({
@@ -35,6 +37,9 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   }
 });
+
+
+
 
 //Stack Navigator for App Button Navigation
 export default class App extends Component {
