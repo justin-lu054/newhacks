@@ -29,27 +29,17 @@ const styles = StyleSheet.create({
     }
 });
 
-const coordinates = [
-    {
-        latitude: 37.798790, 
-        longitude: -122.442753
-    }, 
-    {
-        latitude: 37.790651, 
-        longitude: -122.422497
-    }
-];
-
 
 class Food extends Component {
     state = {
         coordinates: [], 
-        location: null, 
+        userLocation: null, 
+        foodLocation: null
     }
 
     constructor() {
         super(); 
-        this.getDirections = this.getDirections.bind(this); 
+        this.getDirections = this.mapDirections.bind(this); 
         this.handleGetDirections = this.handleGetDirections.bind(this); 
         this.getLocationAsync = this.getLocationAsync.bind(this); 
     }
@@ -57,12 +47,12 @@ class Food extends Component {
     handleGetDirections = () => {
         const data = {
             source: {
-                latitude: this.state.coordinates.latitude, 
-                longitude: this.state.coordinates.longitude
+                latitude: this.state.userLocation.latitude, 
+                longitude: this.state.userLocation.longitude
             },
             destination: {
-                latitude: 40.7359, 
-                longitude: -73.9911
+                latitude: this.state.foodLocation.latitude, 
+                longitude: this.state.userLocation.longitude
             }, 
             params: [
                 {
@@ -78,8 +68,7 @@ class Food extends Component {
         getDirections(data); 
     }
 
-
-    async getDirections(startLoc, destinationLoc) {
+    async mapDirections(startLoc, destinationLoc) {
         try {
             let resp = await fetch(
                 `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U`
@@ -101,7 +90,6 @@ class Food extends Component {
             return error; 
         }
     }
-
     
     async getLocationAsync() {
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
@@ -109,48 +97,55 @@ class Food extends Component {
             alert("Permission to access location denied."); 
         }
         var location = await Location.getCurrentPositionAsync({}); 
-        this.setState({location: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
+        this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
     
-
-    /*
-    getLocationAsync() {
+    getNearestRestaurant(latitude, longitude) {
         return new Promise((resolve, reject) => {
-            Permissions.askAsync(Permissions.LOCATION).then((status) => {
-                console.log(status); 
-                if (status !== "granted") {
-                    alert("Permission to access location denied."); 
+            fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true`)
+            .then(res => res.json())
+            .then(
+                json => {
+                    var coordinates = {
+                        "latitude": json.results[0].geometry.location.lat,
+                        "longitude": json.results[0].geometry.location.lng
+                    }
+                    resolve(coordinates); 
                 }
-                Location.getCurrentPositionAsync({}).then((location) => {
-                    resolve(location);
-                }); 
-            });
+            ); 
         });
     }
-    */
+
     componentDidMount() {
         this.getLocationAsync().then(() => {    
-                                                var string1 = Object.values(this.state.location).join(","); 
-                                                this.getDirections(string1, "40.7359, -73.9911")}); 
-        /*
-        this.getLocationAsync().then((location) => this.setState({
-            location: {
-                "latitude": location.coords.latitude,
-                "longitude": location.coords.longitude
-            }
-        })); 
-        */
-
+                                        var userLocation = Object.values(this.state.userLocation).join(","); 
+                                        this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude)
+                                        .then((coordinates) => {
+                                            this.setState({foodLocation: coordinates});
+                                            var restaurantLocation = Object.values(coordinates).join(","); 
+                                            this.mapDirections(userLocation, restaurantLocation)});
+                                        });     
     }
 
     render() { 
-        console.log(this.state.location);
+        console.log(this.state.userLocation);
+        const {userLocation} = this.state; 
         return (
             <React.Fragment>
                 <View style={styles.container}>
-                    <MapView style={styles.mapStyle}>
-                        {this.state.location && (
-                            <MapView.Marker coordinate={this.state.location}>
+                    <MapView style={styles.mapStyle}
+                            region={{
+                                latitude: userLocation!=null ? userLocation.latitude : 37.78825,
+                                longitude: userLocation!=null ? userLocation.longitude : -122.4234,
+                                latitudeDelta: 0.01, 
+                                longitudeDelta: 0.01
+                            }}>
+                        {userLocation && (
+                            <MapView.Marker coordinate={userLocation}>
+                            </MapView.Marker>
+                        )}
+                        {this.state.foodLocation && (
+                            <MapView.Marker coordinate={this.state.foodLocation}>
                             </MapView.Marker>
                         )}
                         {this.state.coordinates.map((coords, index) => (
@@ -171,12 +166,3 @@ class Food extends Component {
 }
  
 export default Food;
-
-/*
-<MapViewDirections origin={coordinates[0]}
-                                        destination={coordinates[1]}
-                                        apikey={"AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U"}
-                                        strokeWidth={3}
-                                        strokeColor="hotpink">
-                    </MapViewDirections>
-*/
