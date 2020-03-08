@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#000000"
     },
 
-  
+
     headline: {
         fontSize: 18,
         fontWeight: 'bold',

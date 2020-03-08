@@ -3,7 +3,23 @@ import { StyleSheet, Text, View } from 'react-native';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
+import GetLocation from 'react-native-get-location'
 
+
+function getLocation () {
+  //return new Promise((resolve,reject) => {
+      GetLocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+      })
+      .then(location => {
+          console.log(location);
+      })
+      .catch(error => {
+          console.log(error);
+      })
+  //})
+}
 
 export default class App extends Component {
 
@@ -33,9 +49,18 @@ export default class App extends Component {
     return component; 
   }
 
+  onComponentMount(){ 
+    getLocation()
+  }
+
   render() {
+    
     return (
-      this.getComponent()
+      <React.Fragment>
+        
+        {this.getComponent()}
+      </React.Fragment>
+      
     );
   }
 }
