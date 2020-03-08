@@ -35,18 +35,13 @@ function getLocation() {
 
 //Stack Navigator for App Button Navigation
 export default class App extends Component {
-  /*
-  state = {
-    isLoadingComplete: false
-  };
-
-  handleFinishLoading() {
-    this.setState({ isLoadingComplete: true });
-  }
-  */
   onComponentMount() {
     getLocation();
   }
+
+  getHeader = () => {
+    return <Header>placement='right'</Header>;
+  };
 
   myStack() {
     return (
