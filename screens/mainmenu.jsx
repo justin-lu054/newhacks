@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { LinearGradient } from 'expo-linear-gradient';
 
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -28,7 +29,18 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
-   
+    headingButton: {
+        justifyContent: "flex-start",
+        margin: "5%",
+        color: "black"
+      },
+      footer: {
+        flexDirection: "row",
+        width: "100%",
+        alignItems: "flex-end",
+        marginBottom: 20,
+        zIndex: -1
+      }                                                        
 });
 
 class MainMenu extends Component {
@@ -41,9 +53,10 @@ class MainMenu extends Component {
         const { navigation } = this.props;
         return (
             <Container>
+                <Container style={{marginTop: 240}}>
                 <Text style={{ color: '#000000', fontFamily: 'Suisse-Intl-Medium', fontSize: 50}}>Hello!</Text>
                 <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25}}> You must be faded asffff</Text>
-                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25, marginBottom: 100}}> to be using this app</Text>
+                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25, marginBottom: 65}}> to be using this app</Text>
                
                 <TouchableOpacity onPress={() => navigation.navigate("Food")} title ="Food"
                     style={{ marginBottom: 30, height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
@@ -61,25 +74,40 @@ class MainMenu extends Component {
                             <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium'}}>HOME</Text>
                     </LinearGradient>
                 </TouchableOpacity>
+                </Container>
+                    <Container style={styles.footer}>
+                    <Button
+                      onPress={() => Alert.alert("null")}
+                      title="Settings"
+                      style={{ backgroundColor: "black" }}
+                    ></Button>
+                    
+                    <Button
+                      onPress={() => navigation.navigate("Settings")}
+                      title="Settings"
+                      style={{ backgroundColor: "black" }}
+                    ></Button>
+                    <Button
+                      onPress={() => Alert.alert("null")}
+                      title="Settings"
+                      style={{ backgroundColor: "black" }}
+                    ></Button>
+                  </Container>
             </Container>
         );
     }
 }
 
 const Container = styled.View`
-    flex: 1;
-    background-color: #fbfaff;
-    justify-content: center;
-    align-items: center;
+  flex: 1;
+  background-color: #fbfaff;
+  justify-content: center;
+  align-items: center;
 `;
-
 
 const Title = styled.Text`
-    font-size: 30px;
-    color: #000000;
-
+  font-size: 30px;
+  color: #000000;
 `;
-
-
 
 export default MainMenu;
