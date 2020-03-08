@@ -57,12 +57,13 @@ class Settings extends Component {
     }
 
     saveData = () => {
-        AsyncStorage.setItem("address", this.state.address); 
-        AsyncStorage.setItem("name", this.state.name); 
-        AsyncStorage.setItem("contact", this.state.contact); 
+        AsyncStorage.setItem("address", this.state.address).then(console.log("test")); 
+        AsyncStorage.setItem("name", this.state.name).then(console.log("test2")); 
+        AsyncStorage.setItem("contact", this.state.contact).then(console.log("test3")); 
     }
 
     onComponentMount() {
+        console.log("mount")
         AsyncStorage.getAllKeys((keys) => {
             console.log(keys);
         }); 
@@ -90,7 +91,6 @@ class Settings extends Component {
                     value={this.state.contact}
                     onChangeText={this.handlePhoneChange}>
                 </TextInput>
-
 
                 <Text>Address</Text>
                 <TextInput
