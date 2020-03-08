@@ -3,6 +3,9 @@ import * as SMS from 'expo-sms';
 import * as  GetLocation from 'react-native-get-location'
 import * as fs from 'react-native-fs'
 
+const twilioSID = "SK4479d9aec8b67ee4c4e8f515d1dcdf37"
+const twilioApiKey = "GKtLSZc47Rs8e3G9wXP8GbvdB7Z4Rzar"
+
 function getRestaurant (latitude, longitude) {
     return new Promise((resolve, reject) => {
         fetch("https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true")
@@ -25,7 +28,7 @@ function encodeAddress (address) {
 
 function setHome (address) {
     return new Promise((resolve, reject) => {
-        fetch("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U&input=${encodeAddress(address)}&fields=geometry")
+        fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U&input=${encodeAddress(address)}&fields=geometry`)
         .then(res => res.json())
         .then(
             json => {
