@@ -25,11 +25,6 @@
     ],
     "ios": {
       "supportsTablet": true
-    },
-    "rnpm": {
-      "assets": [
-        "./assets/fonts/"
-      ]
     }
   }
 }

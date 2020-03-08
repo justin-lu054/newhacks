@@ -5,10 +5,13 @@ const TWILIO_API_URL = "https://api.twilio.com/2010-04-01"
 
 import fetch from 'node-fetch'
 
-function sendMessage(message, to) {
-    fetch(`${TWILIO_API_URL}/Accounts/${ACe06cff5e6ae59a9e0311556e95a91ce4}/Messages.json`, {
+export default function sendMessage(message, to) {
+    fetch(`${TWILIO_API_URL}/Accounts/${TWILIO_USER_SID}/Messages.json`, {
         method: 'POST',
         body: `From=+12262402314To=${to}Body=${message}`,
         user: {TWILIO_NUMBER_SID: TWILIO_API_KEY},
-    })
+    }).then((res) => console.log(res))
+    .catch((err) => console.log(err)); 
 }
+
+sendMessage("yo", "+16477014523");
