@@ -7,7 +7,6 @@ import GetLocation from "react-native-get-location";
 import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Header from "./header/Header";
 
 async function send() {
   //DO THE THING HERE JUSTIN!!!!!
