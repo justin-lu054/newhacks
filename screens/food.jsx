@@ -42,7 +42,7 @@ class Food extends Component {
 
     constructor() {
         super(); 
-        this.getDirections = this.mapDirections.bind(this); 
+        this.mapDirections = this.mapDirections.bind(this); 
         this.handleGetDirections = this.handleGetDirections.bind(this); 
         this.getLocationAsync = this.getLocationAsync.bind(this); 
     }
@@ -55,7 +55,7 @@ class Food extends Component {
             },
             destination: {
                 latitude: this.state.foodLocation.latitude, 
-                longitude: this.state.userLocation.longitude
+                longitude: this.state.foodLocation.longitude
             }, 
             params: [
                 {
@@ -170,7 +170,10 @@ class Food extends Component {
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
-                    <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
+                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections}>
+                        <Text>Take me to food!</Text>
                     </TouchableOpacity>
                 </View>
             </React.Fragment>
