@@ -8,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: "column", 
+        margin: 10,
         justifyContent: "center",
     },
 
@@ -19,7 +21,6 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
         backgroundColor: "#636363",
         borderRadius: 20,
- 
     },
 
     headline: {
