@@ -172,9 +172,6 @@ class Food extends Component {
                     <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
                         <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections}>
-                        <Text>Take me to food!</Text>
-                    </TouchableOpacity>
                 </View>
             </React.Fragment>
         );
