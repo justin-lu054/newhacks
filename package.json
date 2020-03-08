@@ -15,15 +15,10 @@
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
-<<<<<<< HEAD
     "react-native-get-location": "^1.4.2",
     "react-native-maps": "0.26.1",
     "react-native-maps-directions": "^1.7.3",
     "react-native-sms": "^1.11.0",
-=======
-    "react-native-maps": "0.26.1",
-    "react-native-maps-directions": "^1.7.3",
->>>>>>> 98326be7800e924c99b4b6beb61838d7ec05f1aa
     "react-native-web": "~0.11.7"
   },
   "devDependencies": {

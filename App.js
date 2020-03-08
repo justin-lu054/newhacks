@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
+import Header from './header/Header'
 
 export default class App extends Component {
 
@@ -32,11 +33,19 @@ export default class App extends Component {
     return component; 
   }
 
+  getHeader = () => {
+    return (
+      <Header>
+        placement='right'
+      </Header>
+    )
+  }
+
   render() {
     
     return (
       <React.Fragment>
-        
+        {this.getHeader()}
         {this.getComponent()}
       </React.Fragment>
       
