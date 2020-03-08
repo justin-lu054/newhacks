@@ -1,0 +1,3 @@
+HammRD
+===========
+Picture this, it's 4 am, you stumble out of the bar absolutely shit-faced. You need to sober up and find your way home. You try to open google maps and type in your address but there's just two much stuff, you can't manage. Now there's a solution for this, HammRD. Two buttons, no bullshit. One will direct you to the nearest open fast-food restaurant, the other to your home now you can get as hammered as you want on a wednesday night and still find your way home before your wife finds out.
