@@ -40,8 +40,9 @@ class MainMenu extends Component {
         const { navigation } = this.props;
         return (
             <Container>
-                
-                {/* <Image source={require('assets/hammrd.png')} /> */}
+                <Text style={{ color: '#000000', fontFamily: 'Suisse-Intl-Medium', fontSize: 50}}>Hello!</Text>
+                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25}}> You must be faded asffff</Text>
+                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25, marginBottom: 100}}> to be using this app</Text>
                
                 <TouchableOpacity onPress={() => navigation.navigate("Food")} title ="Food"
                     style={{ marginBottom: 30, height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
