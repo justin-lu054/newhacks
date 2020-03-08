@@ -4,8 +4,14 @@ import MainMenu from "./screens/mainmenu";
 import GetHome from "./screens/home";
 import Food from "./screens/food";
 import GetLocation from "react-native-get-location";
+import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import Header from "./header/Header";
+
+async function send() {
+  //DO THE THING HERE JUSTIN!!!!!
+}
 
 const Stack = createStackNavigator();
 
@@ -56,6 +62,12 @@ export default class App extends Component {
   }
 
   render() {
-    return this.myStack();
+    send();
+    return (
+      <React.Fragment>
+        {this.getHeader()}
+        {this.myStack()}
+      </React.Fragment>
+    );
   }
 }

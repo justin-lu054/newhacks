@@ -12,6 +12,7 @@
     "@react-navigation/native": "^5.0.9",
     "@react-navigation/stack": "^5.1.1",
     "expo": "~36.0.0",
+    "expo-module-scripts": "^1.2.0",
     "expo-sms": "^8.0.0",
     "node-fetch": "^2.6.0",
     "react": "~16.9.0",
@@ -25,6 +26,7 @@
     "react-native-safe-area-context": "0.6.0",
     "react-native-screens": "2.0.0-alpha.12",
     "react-native-sms": "^1.11.0",
+    "react-native-sms-x": "^1.0.7",
     "react-native-web": "~0.11.7"
   },
   "devDependencies": {
