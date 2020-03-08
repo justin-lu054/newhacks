@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, TouchableOpacity, Dimensions } from 'react-native';
 import styled from 'styled-components';
 import { LinearGradient } from 'expo-linear-gradient';
+
 
 
 const styles = StyleSheet.create({
@@ -27,7 +28,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
-   
+                                                                
 });
 
 class MainMenu extends Component {
