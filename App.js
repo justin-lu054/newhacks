@@ -36,8 +36,8 @@ export default class App extends Component {
   render() {
     return (
       <React.Fragment>
-        
-        {this.getComponent()}
+
+        <Food></Food>
       </React.Fragment>
       
     );
