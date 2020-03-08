@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { Component } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MainMenu from "./screens/mainmenu";
@@ -13,6 +14,20 @@ async function send() {
 }
 
 const Stack = createStackNavigator();
+=======
+import React, { Component } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import MainMenu from './screens/mainmenu'
+import GetHome from './screens/home';
+import Food from './screens/food';
+
+
+export default class App extends Component {
+
+  state = {
+    screen: "main"
+  }
+>>>>>>> 4a8862df799aae7c411f718aed1f36f7ddd85a7a
 
 const styles = StyleSheet.create({
   container: {
@@ -44,6 +59,7 @@ export default class App extends Component {
     getLocation();
   }
 
+<<<<<<< HEAD
   getHeader = () => {
     return <Header>placement='right'</Header>;
   };
@@ -66,7 +82,26 @@ export default class App extends Component {
       <React.Fragment>
         {this.getHeader()}
         {this.myStack()}
+=======
+  render() {
+    return (
+      <React.Fragment>
+
+        <Food></Food>
+>>>>>>> 4a8862df799aae7c411f718aed1f36f7ddd85a7a
       </React.Fragment>
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+>>>>>>> 4a8862df799aae7c411f718aed1f36f7ddd85a7a

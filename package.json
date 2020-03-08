@@ -8,7 +8,11 @@
     "eject": "expo eject"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@react-native-community/masked-view": "0.1.5",
+=======
+    "@mapbox/polyline": "^1.1.0",
+>>>>>>> 4a8862df799aae7c411f718aed1f36f7ddd85a7a
     "@react-navigation/native": "^5.0.9",
     "@react-navigation/stack": "^5.1.1",
     "expo": "~36.0.0",
