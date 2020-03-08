@@ -8,9 +8,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: "column", 
+        flexDirection: "column",
         margin: 10,
         justifyContent: "center",
+        zIndex: 1
     },
 
     buttonContainer: {
@@ -33,14 +34,13 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         margin: "5%",
         color: "black"
-      },
-      footer: {
-        flexDirection: "row",
+    },
+    footer: {
+        marginTop: -60,
         width: "100%",
         alignItems: "flex-end",
-        marginBottom: 20,
-        zIndex: -1
-      }                                                        
+        padding: 0
+    }
 });
 
 class MainMenu extends Component {
@@ -53,46 +53,44 @@ class MainMenu extends Component {
         const { navigation } = this.props;
         return (
             <Container>
-                <Container style={{marginTop: 240}}>
-                <Text style={{ color: '#000000', fontFamily: 'Suisse-Intl-Medium', fontSize: 50}}>Hello!</Text>
-                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25}}> You must be faded asffff</Text>
-                <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25, marginBottom: 65}}> to be using this app</Text>
-               
-                <TouchableOpacity onPress={() => navigation.navigate("Food")} title ="Food"
-                    style={{ marginBottom: 30, height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
-                    <LinearGradient
-                        colors={['#c471f5', '#fa71cd']}
-                        style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
-                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium' }}>FOOD</Text>
-                    </LinearGradient>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
-                    style={{ height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
-                    <LinearGradient
-                        colors={['#c471f5', '#fa71cd']}
-                        style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
-                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium'}}>HOME</Text>
-                    </LinearGradient>
-                </TouchableOpacity>
-                </Container>
+                <Container style={{ marginTop: 50 }}>
+                    <Text style={{ color: '#000000', fontFamily: 'Suisse-Intl-Medium', fontSize: 50 }}>Hello!</Text>
+                    <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25 }}> You must be faded asffff</Text>
+                    <Text style={{ color: '#9ea3a3', fontFamily: 'Suisse-Intl-Medium', fontSize: 25, marginBottom: 65 }}> to be using this app</Text>
+
                     <Container style={styles.footer}>
-                    <Button
-                      onPress={() => Alert.alert("null")}
-                      title="Settings"
-                      style={{ backgroundColor: "black" }}
-                    ></Button>
-                    
-                    <Button
-                      onPress={() => navigation.navigate("Settings")}
-                      title="Settings"
-                      style={{ backgroundColor: "black" }}
-                    ></Button>
-                    <Button
-                      onPress={() => Alert.alert("null")}
-                      title="Settings"
-                      style={{ backgroundColor: "black" }}
-                    ></Button>
-                  </Container>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("Settings")}
+                            title="Settings"
+                            style={{ marginTop: -70, marginBottom: -70 }}>
+                            <LinearGradient
+                                colors={['#454545', '#757575']}
+                                style={{ height: 60, width: 300, justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
+                                <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>SETTINGS</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </Container>
+
+                    <TouchableOpacity onPress={() => navigation.navigate("Food")} title="Food"
+                        style={{ marginBottom: 30, height: 125, width: 300, justifyContent: 'center', alignItems: 'center' }}>
+                        <LinearGradient
+                            colors={['#c471f5', '#fa71cd']}
+                            style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
+                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium' }}>FOOD</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
+                        style={{ height: 125, width: 300, justifyContent: 'center', alignItems: 'center' }}>
+                        <LinearGradient
+                            colors={['#c471f5', '#fa71cd']}
+                            style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center', borderRadius: 20 }}>
+                            <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium' }}>HOME</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+
+                </Container>
+
             </Container>
         );
     }
