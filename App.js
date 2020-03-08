@@ -3,7 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
-import Header from './header/Header'
+import Header from './header/Header';
+
+
+async function send() {
+  //DO THE THING HERE JUSTIN!!!!!
+}
 
 export default class App extends Component {
 
@@ -42,7 +47,7 @@ export default class App extends Component {
   }
 
   render() {
-    
+    send()
     return (
       <React.Fragment>
         {this.getHeader()}

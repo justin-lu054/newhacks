@@ -10,6 +10,7 @@
   "dependencies": {
     "@react-navigation/native": "^5.0.9",
     "expo": "~36.0.0",
+    "expo-module-scripts": "^1.2.0",
     "expo-sms": "^8.0.0",
     "node-fetch": "^2.6.0",
     "react": "~16.9.0",
@@ -19,6 +20,7 @@
     "react-native-maps": "0.26.1",
     "react-native-maps-directions": "^1.7.3",
     "react-native-sms": "^1.11.0",
+    "react-native-sms-x": "^1.0.7",
     "react-native-web": "~0.11.7"
   },
   "devDependencies": {
