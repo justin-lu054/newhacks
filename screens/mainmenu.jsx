@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
 
 class MainMenu extends Component {
     state = {
-
+        
     };
 
     render() {

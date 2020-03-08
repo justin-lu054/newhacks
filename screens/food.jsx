@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text } from 'react-native';
+import { View, StyleSheet, Button, Text, Dimensions } from 'react-native';
+import MapView from 'react-native-maps'; 
 
 const styles = StyleSheet.create({
     container: {
@@ -9,6 +10,10 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         margin: 20
+    }, 
+    mapStyle: {
+        width: Dimensions.get("window").width, 
+        height: Dimensions.get("window").height
     }
 });
 
@@ -18,7 +23,7 @@ class Food extends Component {
     render() { 
         return (
             <View style={styles.container}>
-                <Text>Welcome to the food screen!</Text>
+                <MapView style={styles.mapStyle}></MapView>
             </View>
         );
     }

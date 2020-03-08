@@ -35,7 +35,11 @@ export default class App extends Component {
 
   render() {
     return (
-      this.getComponent()
+      <React.Fragment>
+        
+        {this.getComponent()}
+      </React.Fragment>
+      
     );
   }
 }
