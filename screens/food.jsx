@@ -4,7 +4,9 @@ import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
 import * as Permissions from 'expo-permissions';
-import getDirections from 'react-native-google-maps-directions'; 
+import getDirections from 'react-native-google-maps-directions';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -13,16 +15,17 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
 
-    buttonContainer: {
-        flex: 1, 
-        
-    }, 
+     
     buttonStyle: {
-        flex: 1,
+        height: 100, 
+        width: '100%', 
+        backgroundColor: '#c471f5',
+        justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#DDDDDD',
-        padding: 10
+        opacity: 0.75,
+        borderRadius: 30
     },
+
     mapStyle: {
         width: Dimensions.get("window").width, 
         height: Dimensions.get("window").height
@@ -132,7 +135,15 @@ class Food extends Component {
         const {userLocation} = this.state; 
         return (
             <React.Fragment>
+                
                 <View style={styles.container}>
+                
+                <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
+                    style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75}}>
+                    <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium'}}>where you're going</Text>
+                </TouchableOpacity>
+
+
                     <MapView style={styles.mapStyle}
                             region={{
                                 latitude: userLocation!=null ? userLocation.latitude : 37.78825,
@@ -158,7 +169,9 @@ class Food extends Component {
                     </MapView>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections}></TouchableOpacity>
+                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
+                    <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
+                    </TouchableOpacity>
                 </View>
             </React.Fragment>
         );
