@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
  
     },
 
-
     headline: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -31,7 +30,6 @@ const styles = StyleSheet.create({
    
 });
 
-
 class MainMenu extends Component {
     state = {
 
@@ -39,12 +37,13 @@ class MainMenu extends Component {
 
 
     render() {
+        const { navigation } = this.props;
         return (
             <Container>
                 
-                <Image source={require('assets/hammrd.png')} />
+                {/* <Image source={require('assets/hammrd.png')} /> */}
                
-                <TouchableOpacity onPress={this.props.showFood}
+                <TouchableOpacity onPress={() => navigation.navigate("Food")} title ="Food"
                     style={{ marginBottom: 30, height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
                     <LinearGradient
                         colors={['#c471f5', '#fa71cd']}
@@ -52,7 +51,7 @@ class MainMenu extends Component {
                             <Text style={{ color: '#fff', fontSize: 40, fontFamily: 'Suisse-Intl-Medium' }}>FOOD</Text>
                     </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={this.props.showFood}
+                <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
                     style={{ height: 200, width: 300, justifyContent: 'center', alignItems: 'center' }}>
                     <LinearGradient
                         colors={['#c471f5', '#fa71cd']}

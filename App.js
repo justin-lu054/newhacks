@@ -1,56 +1,43 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { AppLoading } from 'expo';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
-import GetLocation from 'react-native-get-location'
+import { StyleSheet, Text, View } from "react-native";
+import Header from "./header/Header";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
-
-function getLocation () {
-  //return new Promise((resolve,reject) => {
-      GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 15000,
-      })
-      .then(location => {
-          console.log(location);
-      })
-      .catch(error => {
-          console.log(error);
-      })
-  //})
+async function send() {
+  //DO THE THING HERE JUSTIN!!!!!
 }
 
+const Stack = createStackNavigator();
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
+});
+
+//Stack Navigator for App Button Navigation
 export default class App extends Component {
+
   state = {
     screen: "main",
     isLoadingComplete: false
+  };
+  onComponentMount() {
   }
 
-  showFood = () => {
-    this.setState({screen: "food"});
-  }
-
-  showHome = () => {
-    this.setState({screen: "home"}); 
-  }
-
-  getComponent = () => {
-    var component; 
-    if (this.state.screen === "main") {
-      component = <MainMenu showFood={this.showFood} showHome={this.showHome}></MainMenu>;
-    }
-    else if (this.state.screen === "food") {
-      component = <Food></Food>;
-    }
-    else if (this.state.screen === "home") {
-      component = <GetHome></GetHome>
-    }
-    return component; 
-  }
+  getHeader = () => {
+    return <Header>placement='right'</Header>;
+  };
 
   // Async stands for an asychronous function, the time it takes to complete is unknown at runtime
   async _loadResourcesAsync() {
@@ -73,9 +60,19 @@ export default class App extends Component {
     this.setState({ isLoadingComplete: true })
   }
 
-  componentDidMount(){ 
-    getLocation()
+  myStack() {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="MainMenu">
+          <Stack.Screen name="MainMenu" component={MainMenu} />
+          <Stack.Screen name="GetHome" component={GetHome} />
+          <Stack.Screen name="Food" component={Food} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
   }
+
+
 
   render() {
     const { isLoadingComplete } = this.state;
@@ -88,12 +85,13 @@ export default class App extends Component {
         />
       ); 
     }
-
-    return (
-      <>
-        {this.getComponent()}
-      </>
-      
-    );
+    else {
+      return (
+        <React.Fragment>
+          {this.getHeader()}
+          {this.myStack()}
+        </React.Fragment>
+      );
+    }      
   }
 }
