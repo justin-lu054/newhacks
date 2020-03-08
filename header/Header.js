@@ -1,10 +1,10 @@
-import React from 'react'
-import {View, Text} from 'react-native'
+import React from "react";
+import { View, Text } from "react-native";
 
 const Header = () => (
-    <View>
-        <Text>Header</Text>
-    </View>
-)
+  <View>
+    <Text>Header</Text>
+  </View>
+);
 
-export default Header
+export default Header;

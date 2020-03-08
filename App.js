@@ -1,54 +1,97 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { AppLoading } from 'expo';
+import { Asset } from 'expo-asset';
+import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
+import { StyleSheet, Text, View } from "react-native";
+import Header from "./header/Header";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
-
-export default class App extends Component {
-
-  state = {
-    screen: "main"
-  }
-
-  showFood = () => {
-    this.setState({screen: "food"});
-  }
-
-  showHome = () => {
-    this.setState({screen: "home"}); 
-  }
-
-  getComponent = () => {
-    var component; 
-    if (this.state.screen === "main") {
-      component = <MainMenu showFood={this.showFood} showHome={this.showHome}></MainMenu>;
-    }
-    else if (this.state.screen === "food") {
-      component = <Food></Food>;
-    }
-    else if (this.state.screen === "home") {
-      component = <GetHome></GetHome>
-    }
-    return component; 
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-
-        <Food></Food>
-      </React.Fragment>
-      
-    );
-  }
+async function send() {
+  //DO THE THING HERE JUSTIN!!!!!
 }
+
+const Stack = createStackNavigator();
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
+
+//Stack Navigator for App Button Navigation
+export default class App extends Component {
+
+  state = {
+    screen: "main",
+    isLoadingComplete: false
+  };
+  onComponentMount() {
+  }
+
+  getHeader = () => {
+    return <Header>placement='right'</Header>;
+  };
+
+  // Async stands for an asychronous function, the time it takes to complete is unknown at runtime
+  async _loadResourcesAsync() {
+    // We must always await a Promise as we do not know when it will be fulfilled or denied
+    await Promise.all([
+      Asset.loadAsync([
+        require('./assets/hammrd.png'),
+      ]),
+      Font.loadAsync({
+        'Suisse-Intl-Medium': require('./assets/fonts/Suisse-Intl-Medium.ttf'),
+      }),
+    ]);
+  }
+  
+  handleLoadingError(error) {
+    console.warn(error);
+  }
+
+  handleFinishLoading() {
+    this.setState({ isLoadingComplete: true })
+  }
+
+  myStack() {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="MainMenu">
+          <Stack.Screen name="MainMenu" component={MainMenu} />
+          <Stack.Screen name="GetHome" component={GetHome} />
+          <Stack.Screen name="Food" component={Food} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
+
+
+  render() {
+    const { isLoadingComplete } = this.state;
+    if (!isLoadingComplete) {
+      return (
+        <AppLoading
+          startAsync={this._loadResourcesAsync}
+          onFinish={() => this.setState({ isLoadingComplete: true })}
+          onError={console.warn}
+        />
+      ); 
+    }
+    else {
+      return (
+        <React.Fragment>
+          {this.getHeader()}
+          {this.myStack()}
+        </React.Fragment>
+      );
+    }      
+  }
+}
