@@ -1,4 +1,6 @@
-const fetch = require('node-fetch');
+import * as fetch from 'node-fetch';
+import * as SMS from 'expo-sms';
+import * as  GetLocation from 'react-native-get-location'
 
 function getRestaurant (latitude, longitude) {
     return new Promise((resolve, reject) => {
@@ -8,4 +10,21 @@ function getRestaurant (latitude, longitude) {
     });
 }
 
-getRestaurant("51.5074", "-0.1278").then((json) => console.log(json)); 
+function getLocation () {
+    //return new Promise((resolve,reject) => {
+        GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 10000,
+        })
+        .then(location => {
+            console.log(location);
+        })
+        .catch(error => {
+            console.log("uwu a wittle fucky wucky");
+        })
+    //})
+}
+
+
+
+
