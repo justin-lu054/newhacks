@@ -5,6 +5,7 @@ import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
+import Settings from "./screens/settings";
 import { StyleSheet, Image, Text, View } from "react-native";
 import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
@@ -32,13 +33,11 @@ const styles = StyleSheet.create({
 
 //Stack Navigator for App Button Navigation
 export default class App extends Component {
-
   state = {
     screen: "main",
     isLoadingComplete: false
   };
-  onComponentMount() {
-  }
+  onComponentMount() {}
 
   getHeader = () => {
     return <Header>placement='right'</Header>;
@@ -48,21 +47,19 @@ export default class App extends Component {
   async _loadResourcesAsync() {
     // We must always await a Promise as we do not know when it will be fulfilled or denied
     await Promise.all([
-      Asset.loadAsync([
-        require('./assets/hammrd.png'),
-      ]),
+      Asset.loadAsync([require("./assets/hammrd.png")]),
       Font.loadAsync({
-        'Suisse-Intl-Medium': require('./assets/fonts/Suisse-Intl-Medium.ttf'),
-      }),
+        "Suisse-Intl-Medium": require("./assets/fonts/Suisse-Intl-Medium.ttf")
+      })
     ]);
   }
-  
+
   handleLoadingError(error) {
     console.warn(error);
   }
 
   handleFinishLoading() {
-    this.setState({ isLoadingComplete: true })
+    this.setState({ isLoadingComplete: true });
   }
 
   myStack() {
@@ -72,12 +69,11 @@ export default class App extends Component {
           <Stack.Screen name="MainMenu" component={MainMenu} />
           <Stack.Screen name="GetHome" component={GetHome} />
           <Stack.Screen name="Food" component={Food} />
+          <Stack.Screen name="Settings" component={Settings} />
         </Stack.Navigator>
       </NavigationContainer>
     );
   }
-
-
 
   render() {
     const { isLoadingComplete } = this.state;
@@ -88,15 +84,14 @@ export default class App extends Component {
           onFinish={() => this.setState({ isLoadingComplete: true })}
           onError={console.warn}
         />
-      ); 
-    }
-    else {
+      );
+    } else {
       return (
         <React.Fragment>
           {this.getHeader()}
           {this.myStack()}
         </React.Fragment>
       );
-    }      
+    }
   }
 }
