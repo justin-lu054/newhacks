@@ -74,7 +74,7 @@ class Food extends Component {
     async mapDirections(startLoc, destinationLoc) {
         try {
             let resp = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=`
             );
             let respJson = await resp.json();
             let points = Polyline.decode(respJson.routes[0].overview_polyline.points);
@@ -105,7 +105,7 @@ class Food extends Component {
 
     getNearestRestaurant(latitude, longitude) {
         return new Promise((resolve, reject) => {
-            fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=AIzaSyCp19sWPQVlG1V8m9cUB9gLGszUAwNXa4U&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true`)
+            fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true`)
                 .then(res => res.json())
                 .then(
                     json => {
