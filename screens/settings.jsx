@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Button, Image, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage} from 'react-native';
-import { FormLabel, FormInput, FormValidationMessage } from 'react-native-elements'; 
-import styled from 'styled-components';
-import { LinearGradient } from 'expo-linear-gradient';
-
+import { Text, View, StyleSheet, Button, Image, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView} from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -40,46 +36,35 @@ class Settings extends Component {
         contact: ""
     };
 
-    onChangeText() {
-        console.log("yo");
+    handleChange = (key, text) => {
+        this.setState({[key]: text}); 
+    }
+    
+    saveData = async () => {
+        await AsyncStorage.setItem("address", this.state.address); //.then(console.log("test")); 
+        await AsyncStorage.setItem("name", this.state.name); //.then(console.log("test2")); 
+        await AsyncStorage.setItem("contact", this.state.contact); //.then(console.log("test3")).then(alert("Information saved!")); 
+        alert("Information saved!"); 
     }
 
-    handleAddressChange = (text) => {
-        this.setState({"address": text}); 
-    }
-
-    handleNameChange = (text) => {
-        this.setState({"name": text});
-    }
-
-    handlePhoneChange = (text) => {
-        this.setState({"contact": text}); 
-    }
-
-    saveData = () => {
-        AsyncStorage.setItem("address", this.state.address).then(console.log("test")); 
-        AsyncStorage.setItem("name", this.state.name).then(console.log("test2")); 
-        AsyncStorage.setItem("contact", this.state.contact).then(console.log("test3")); 
-    }
-
-    onComponentMount() {
+    componentDidMount = async () => {
         console.log("mount")
-        AsyncStorage.getAllKeys((keys) => {
-            console.log(keys);
-        }); 
+        address = await AsyncStorage.getItem("address");
+        name = await AsyncStorage.getItem("name"); 
+        contact = await AsyncStorage.getItem("contact"); 
+        this.setState({"address": address, "name": name, "contact": contact}); 
     }
 
     render() {
         return (
-           <View style={styles.container}>
+           <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text>Emergency Contact Name</Text>
                 <TextInput
                     style={styles.address}
                     placeholder="Contact Name"
                     maxLength={20}
-                    onBlur={Keyboard.dismiss}
                     value={this.state.name}
-                    onChangeText={this.handleNameChange}>
+                    onChangeText={(text) => this.handleChange("name", text)}>
                 </TextInput>
 
                 <Text>Emergency Contact Number</Text>
@@ -87,9 +72,8 @@ class Settings extends Component {
                     style={styles.address}
                     placeholder="Phone Number"
                     maxLength={20}
-                    onBlur={Keyboard.dismiss}
                     value={this.state.contact}
-                    onChangeText={this.handlePhoneChange}>
+                    onChangeText={(text) => this.handleChange("contact", text)}>
                 </TextInput>
 
                 <Text>Address</Text>
@@ -97,15 +81,14 @@ class Settings extends Component {
                     style={styles.address}
                     placeholder="Address"
                     maxLength={20}
-                    onBlur={Keyboard.dismiss}
                     value={this.state.address}
-                    onChangeText={this.handleAddressChange}>
+                    onChangeText={(text) => this.handleChange("address", text)}>
                 </TextInput>
                 <TouchableOpacity style={styles.saveButton}
                                 onPress={this.saveData}>
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
-           </View>
+           </KeyboardAvoidingView>
         );
     }
 }
