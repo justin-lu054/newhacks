@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Button, Image, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight} from 'react-native';
+import apikeys from '../apikeys.json';
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: "column", 
         margin: 10,
+        marginBottom:10,
         justifyContent: "center",
     }, 
     address: {
@@ -25,6 +27,12 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
         fontSize: 20, 
         textAlign: "center"
+    },
+    locationSuggestion: {
+        backgroundColor: "white", 
+        padding: 5,
+        borderWidth: 0.5, 
+        fontSize: 18
     }
 });
 
@@ -33,7 +41,8 @@ class Settings extends Component {
     state = {
         address: "", 
         name: "", 
-        contact: ""
+        contact: "",
+        locationSuggestions: []
     };
 
     handleChange = (key, text) => {
@@ -49,13 +58,33 @@ class Settings extends Component {
 
     componentDidMount = async () => {
         console.log("mount")
+        console.log(apikeys.GOOGLE_MAPS_API_KEY);
         address = await AsyncStorage.getItem("address");
         name = await AsyncStorage.getItem("name"); 
         contact = await AsyncStorage.getItem("contact"); 
         this.setState({"address": address, "name": name, "contact": contact}); 
     }
 
+    onChangeAddress = async (address) => {
+        this.setState({address: address}); 
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apikeys.GOOGLE_MAPS_API_KEY}&input={${address}}`;
+        const result = await fetch(apiUrl); 
+        const json = await result.json(); 
+        this.setState({locationSuggestions: json.predictions}); 
+    }
+
     render() {
+        const locationSuggestions = this.state.locationSuggestions.map(
+            prediction => (
+                <TouchableHighlight key={prediction.id}
+                                    onPress = {() => this.setState({address: prediction.description})}>
+                    <Text style={styles.locationSuggestion}>
+                        {prediction.description}
+                    </Text>
+                </TouchableHighlight>
+            )
+        );
+
         return (
            <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text>Emergency Contact Name</Text>
@@ -80,10 +109,11 @@ class Settings extends Component {
                 <TextInput
                     style={styles.address}
                     placeholder="Address"
-                    maxLength={20}
+                    maxLength={100}
                     value={this.state.address}
-                    onChangeText={(text) => this.handleChange("address", text)}>
+                    onChangeText={this.onChangeAddress}>
                 </TextInput>
+                {locationSuggestions}
                 <TouchableOpacity style={styles.saveButton}
                                 onPress={this.saveData}>
                     <Text style={styles.saveButtonText}>Save</Text>

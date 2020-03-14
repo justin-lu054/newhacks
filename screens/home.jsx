@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, TouchableNativeFeedback } from 'react-native';
+import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage } from 'react-native';
 import MapView from 'react-native-maps'; 
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
 import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions'; 
+import apikeys from '../apikeys.json'; 
 
 
 const styles = StyleSheet.create({
@@ -35,10 +36,8 @@ class GetHome extends Component {
   state = {
     coordinates: [], 
     userLocation : null, 
-    homeLocation: {
-      latitude: 43.866756, 
-      longitude: -79.348833
-    } 
+    homeLocation: null, 
+    address: null
   };
 
   constructor() {
@@ -46,6 +45,7 @@ class GetHome extends Component {
     this.mapDirections = this.mapDirections.bind(this); 
     this.handleGetDirections = this.handleGetDirections.bind(this); 
     this.getLocationAsync = this.getLocationAsync.bind(this); 
+    this.componentDidMount = this.componentDidMount.bind(this);
   }
 
   handleGetDirections = () => {
@@ -56,7 +56,7 @@ class GetHome extends Component {
             },
             destination: {
                 latitude: this.state.homeLocation.latitude, 
-                longitude: this.state.userLocation.longitude
+                longitude: this.state.homeLocation.longitude
             }, 
             params: [
                 {
@@ -72,10 +72,10 @@ class GetHome extends Component {
         getDirections(data); 
     }
 
-    async mapDirections(startLoc, destinationLoc) {
+    mapDirections = async (startLoc, destinationLoc) => {
         try {
             let resp = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
             );
             let respJson = await resp.json(); 
             let points = Polyline.decode(respJson.routes[0].overview_polyline.points); 
@@ -104,62 +104,68 @@ class GetHome extends Component {
         this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
     
+    getHomeCoords = (address) => {
+        return new Promise((resolve, reject) => {
+            fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
+            .then(res => res.json())
+            .then(json => {
+                var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
+                resolve(coordinates); 
+            })
+        })
+    }
     
 
     componentDidMount() {
-        this.getLocationAsync().then(() => {    
-                                        var userLocation = Object.values(this.state.userLocation).join(","); 
-                                        var homeLocation = Object.values(this.state.homeLocation).join(","); 
-                                        this.mapDirections(userLocation, homeLocation); 
-                                        /*
-                                        this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude)
-                                        .then((coordinates) => {
-                                            this.setState({foodLocation: coordinates});
-                                            var restaurantLocation = Object.values(coordinates).join(","); 
-                                            this.mapDirections(userLocation, restaurantLocation)});
-                                          */
-                                        });     
+        this.getLocationAsync().then(AsyncStorage.getItem("address")
+                                .then((address) => this.setState({address: address})))
+                                .then(() => {
+                                        this.getHomeCoords(this.state.address).then((coordinates) => this.setState({homeLocation: coordinates}, () => {
+                                            var userLocationString = Object.values(this.state.userLocation).join(","); 
+                                            var homeLocationString = Object.values(this.state.homeLocation).join(","); 
+                                            this.mapDirections(userLocationString, homeLocationString); 
+                                        })) 
+                                });
     }
 
-  render() {
-    const {userLocation} = this.state; 
-    return (
-        <React.Fragment>
-            <View style={styles.container}>
-                <MapView style={styles.mapStyle}
-                        region={{
-                            latitude: userLocation!=null ? userLocation.latitude : 37.78825,
-                            longitude: userLocation!=null ? userLocation.longitude : -122.4234,
-                            latitudeDelta: 0.01, 
-                            longitudeDelta: 0.01
-                        }}>
-                    {userLocation && (
-                        <MapView.Marker coordinate={userLocation}>
-                        </MapView.Marker>
-                    )}
-                    {this.state.homeLocation && (
-                        <MapView.Marker coordinate={this.state.homeLocation}>
-                        </MapView.Marker>
-                    )}
-                    {this.state.coordinates.map((coords, index) => (
-                        <MapView.Polyline key={index}
-                                        index={index}
-                                        coordinates={coords}
-                                        strokeWidth={2}
-                                        strokeColor="blue"></MapView.Polyline>
-                    ))}
-                </MapView>
-            </View>
-            {userLocation && (
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
-                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
-                    </TouchableOpacity>
+    render() {
+        const {userLocation, homeLocation} = this.state; 
+        return (
+            <React.Fragment>
+                <View style={styles.container}>
+                    <MapView style={styles.mapStyle}
+                            region={{
+                                latitude: userLocation!=null ? userLocation.latitude : 37.78825,
+                                longitude: userLocation!=null ? userLocation.longitude : -122.4234,
+                                latitudeDelta: 0.01, 
+                                longitudeDelta: 0.01
+                            }}>
+                        {(userLocation) && (
+                            <MapView.Marker coordinate={userLocation}>
+                            </MapView.Marker>
+                        )}
+                        {(homeLocation) && (
+                            <MapView.Marker coordinate={homeLocation}>
+                            </MapView.Marker>
+                        )}
+                        {this.state.coordinates.map((coords, index) => (
+                            <MapView.Polyline key={index}
+                                            index={index}
+                                            coordinates={coords}
+                                            strokeWidth={2}
+                                            strokeColor="blue"></MapView.Polyline>
+                        ))}
+                    </MapView>
                 </View>
-            )}
-            
-        </React.Fragment>);
-  }
+                {userLocation && (
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
+                            <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}     
+            </React.Fragment>);
+    }
 }
 
 export default GetHome;

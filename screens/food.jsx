@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions';
 import { LinearGradient } from 'expo-linear-gradient';
+import apikeys from '../apikeys.json'; 
 
 
 const styles = StyleSheet.create({
@@ -74,7 +75,7 @@ class Food extends Component {
     async mapDirections(startLoc, destinationLoc) {
         try {
             let resp = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
             );
             let respJson = await resp.json();
             let points = Polyline.decode(respJson.routes[0].overview_polyline.points);
@@ -105,7 +106,7 @@ class Food extends Component {
 
     getNearestRestaurant(latitude, longitude) {
         return new Promise((resolve, reject) => {
-            fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true`)
+            fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&key=${apikeys.GOOGLE_MAPS_API_KEY}&location=${latitude},${longitude}&type=restaurant&fields=name&keyword=fast%20food&opennow=true`)
                 .then(res => res.json())
                 .then(
                     json => {
@@ -141,10 +142,11 @@ class Food extends Component {
                     {userLocation && (
                         <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
                         style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
-                            <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>{foodLocation ? foodLocation.name : "Loading..."}</Text>
+                            <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium' }}>
+                                {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
+                            </Text>
                         </TouchableOpacity>
                     )}
-                    
                     <MapView style={styles.mapStyle}
                         region={{
                             latitude: userLocation != null ? userLocation.latitude : 37.78825,

@@ -56,8 +56,8 @@ export default class App extends Component {
   myStack() {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="MainMenu">
-          <Stack.Screen style={{flex: 1}} name="MainMenu" component={MainMenu} />
+        <Stack.Navigator initialRouteName="Main Menu">
+          <Stack.Screen style={{flex: 1}} name="Main Menu" component={MainMenu} />
           <Stack.Screen name="GetHome" component={GetHome} />
           <Stack.Screen name="Food" component={Food} />
           <Stack.Screen name="Settings" component={Settings} />
