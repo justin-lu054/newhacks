@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight, ScrollView, FlatList, ListRenderItem} from 'react-native';
 import apikeys from '../apikeys.json';
 import _ from "lodash";
 
@@ -31,9 +31,10 @@ const styles = StyleSheet.create({
     },
     locationSuggestion: {
         backgroundColor: "white", 
-        padding: 5,
+        padding: 8,
+        width: "100%",
         borderWidth: 0.5, 
-        fontSize: 18
+        fontSize: 20
     }
 });
 
@@ -63,8 +64,6 @@ class Settings extends Component {
     }
 
     componentDidMount = async () => {
-        console.log("mount")
-        console.log(apikeys.GOOGLE_MAPS_API_KEY);
         address = await AsyncStorage.getItem("address");
         name = await AsyncStorage.getItem("name"); 
         contact = await AsyncStorage.getItem("contact"); 
@@ -82,53 +81,64 @@ class Settings extends Component {
     
 
     render() {
+
+
+        
         const locationSuggestions = this.state.locationSuggestions.map(
             prediction => (
                 <TouchableHighlight key={prediction.id}
-                                    onPress = {() => this.setState({address: prediction.description})}>
+                                    onPress = {() => this.setState({address: prediction.description, locationSuggestions: []})}>
                     <Text style={styles.locationSuggestion}>
                         {prediction.description}
                     </Text>
                 </TouchableHighlight>
             )
         );
+        
 
         return (
            <KeyboardAvoidingView style={styles.container} behavior="padding">
-                <Text>Emergency Contact Name</Text>
-                <TextInput
-                    style={styles.address}
-                    placeholder="Contact Name"
-                    maxLength={20}
-                    value={this.state.name}
-                    onChangeText={(text) => this.handleChange("name", text)}>
-                </TextInput>
+                <ScrollView>
+                    <View>
+                        <Text>Emergency Contact Name</Text>
+                        <TextInput
+                            style={styles.address}
+                            placeholder="Contact Name"
+                            maxLength={20}
+                            value={this.state.name}
+                            onChangeText={(text) =>  {
+                                //this.handleChange("name", text); 
+                                this.setState({address: text}); 
+                            }}>
+                        </TextInput>
 
-                <Text>Emergency Contact Number</Text>
-                <TextInput
-                    style={styles.address}
-                    placeholder="Phone Number"
-                    maxLength={20}
-                    value={this.state.contact}
-                    onChangeText={(text) => this.handleChange("contact", text)}>
-                </TextInput>
+                        <Text>Emergency Contact Number</Text>
+                        <TextInput
+                            style={styles.address}
+                            placeholder="Phone Number"
+                            maxLength={20}
+                            value={this.state.contact}
+                            onChangeText={(text) => this.handleChange("contact", text)}>
+                        </TextInput>
 
-                <Text>Address</Text>
-                <TextInput
-                    style={styles.address}
-                    placeholder="Address"
-                    maxLength={100}
-                    value={this.state.address}
-                    onChangeText={(address) => {
-                        this.setState({address: address});
-                        this.onChangeAddressDebounced(address); 
-                    }}>
-                </TextInput>
-                {locationSuggestions}
-                <TouchableOpacity style={styles.saveButton}
-                                onPress={this.saveData}>
-                    <Text style={styles.saveButtonText}>Save</Text>
-                </TouchableOpacity>
+                        <Text>Address</Text>
+                        <TextInput
+                            style={styles.address}
+                            placeholder="Address"
+                            maxLength={100}
+                            value={this.state.address}
+                            onChangeText={(address) => {
+                                this.setState({address: address});
+                                this.onChangeAddressDebounced(address); 
+                            }}>
+                        </TextInput>
+                        {locationSuggestions}
+                        <TouchableOpacity style={styles.saveButton}
+                                        onPress={this.saveData}>
+                            <Text style={styles.saveButtonText}>Save</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
            </KeyboardAvoidingView>
         );
     }

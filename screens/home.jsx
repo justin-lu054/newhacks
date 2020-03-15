@@ -33,22 +33,22 @@ const styles = StyleSheet.create({
 });
 
 class GetHome extends Component {
-  state = {
-    coordinates: [], 
-    userLocation : null, 
-    homeLocation: null, 
-    address: null
-  };
+    state = {
+        coordinates: [], 
+        userLocation : null, 
+        homeLocation: null, 
+        address: null
+    };
 
-  constructor() {
-    super(); 
-    this.mapDirections = this.mapDirections.bind(this); 
-    this.handleGetDirections = this.handleGetDirections.bind(this); 
-    this.getLocationAsync = this.getLocationAsync.bind(this); 
-    this.componentDidMount = this.componentDidMount.bind(this);
-  }
+    constructor() {
+        super(); 
+        this.mapDirections = this.mapDirections.bind(this); 
+        this.handleGetDirections = this.handleGetDirections.bind(this); 
+        this.getLocationAsync = this.getLocationAsync.bind(this); 
+        this.componentDidMount = this.componentDidMount.bind(this);
+    }
 
-  handleGetDirections = () => {
+    handleGetDirections = () => {
         const data = {
             source: {
                 latitude: this.state.userLocation.latitude, 
