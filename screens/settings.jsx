@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight} from 'react-native';
 import apikeys from '../apikeys.json';
+import _ from "lodash";
 
 const styles = StyleSheet.create({
     container: {
@@ -45,6 +46,11 @@ class Settings extends Component {
         locationSuggestions: []
     };
 
+    constructor(props) {
+        super(props); 
+        this.onChangeAddressDebounced = _.debounce(this.onChangeAddress, 1000); 
+    }
+
     handleChange = (key, text) => {
         this.setState({[key]: text}); 
     }
@@ -66,12 +72,14 @@ class Settings extends Component {
     }
 
     onChangeAddress = async (address) => {
-        this.setState({address: address}); 
+        //this.setState({address: address}); 
         const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apikeys.GOOGLE_MAPS_API_KEY}&input={${address}}`;
         const result = await fetch(apiUrl); 
         const json = await result.json(); 
         this.setState({locationSuggestions: json.predictions}); 
     }
+
+    
 
     render() {
         const locationSuggestions = this.state.locationSuggestions.map(
@@ -111,7 +119,10 @@ class Settings extends Component {
                     placeholder="Address"
                     maxLength={100}
                     value={this.state.address}
-                    onChangeText={this.onChangeAddress}>
+                    onChangeText={(address) => {
+                        this.setState({address: address});
+                        this.onChangeAddressDebounced(address); 
+                    }}>
                 </TextInput>
                 {locationSuggestions}
                 <TouchableOpacity style={styles.saveButton}
