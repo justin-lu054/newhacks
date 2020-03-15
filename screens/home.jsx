@@ -121,6 +121,11 @@ class GetHome extends Component {
         const address = await AsyncStorage.getItem("address"); 
         const homeCoords = await this.getHomeCoords(address); 
 
+        //begin location tracking every 100 seconds
+        await Location.startLocationUpdatesAsync("firstTask", {
+            accuracy: Location.Accuracy.BestForNavigation, 
+            timeInterval: 100
+        });
 
         this.setState({address: address}, () => {
             this.setState({homeLocation: homeCoords}, () => {
@@ -170,5 +175,17 @@ class GetHome extends Component {
             </React.Fragment>);
     }
 }
+
+TaskManager.defineTask("firstTask", ({data, error}) => {
+    if (error) {
+        console.log("error", error); 
+        return; 
+    }
+    if (data) {
+        const {locations} = data; 
+        console.log("locations", locations); 
+    }
+})
+
 
 export default GetHome;
