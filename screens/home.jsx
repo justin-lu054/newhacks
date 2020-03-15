@@ -6,7 +6,7 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions'; 
 import apikeys from '../apikeys.json'; 
-
+import * as TaskManager from 'expo-task-manager'; 
 
 const styles = StyleSheet.create({
   container: {
@@ -104,7 +104,7 @@ class GetHome extends Component {
         this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
     
-    getHomeCoords = (address) => {
+    getHomeCoords = async (address) => {
         return new Promise((resolve, reject) => {
             fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
             .then(res => res.json())
@@ -116,16 +116,19 @@ class GetHome extends Component {
     }
     
 
-    componentDidMount() {
-        this.getLocationAsync().then(AsyncStorage.getItem("address")
-                                .then((address) => this.setState({address: address})))
-                                .then(() => {
-                                        this.getHomeCoords(this.state.address).then((coordinates) => this.setState({homeLocation: coordinates}, () => {
-                                            var userLocationString = Object.values(this.state.userLocation).join(","); 
-                                            var homeLocationString = Object.values(this.state.homeLocation).join(","); 
-                                            this.mapDirections(userLocationString, homeLocationString); 
-                                        })) 
-                                });
+    async componentDidMount() {
+        await this.getLocationAsync(); 
+        const address = await AsyncStorage.getItem("address"); 
+        const homeCoords = await this.getHomeCoords(address); 
+
+
+        this.setState({address: address}, () => {
+            this.setState({homeLocation: homeCoords}, () => {
+                const userLocationString = Object.values(this.state.userLocation).join(","); 
+                var homeLocationString = Object.values(this.state.homeLocation).join(","); 
+                this.mapDirections(userLocationString, homeLocationString); 
+            });
+        });
     }
 
     render() {

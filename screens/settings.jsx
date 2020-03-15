@@ -107,11 +107,9 @@ class Settings extends Component {
                             maxLength={20}
                             value={this.state.name}
                             onChangeText={(text) =>  {
-                                //this.handleChange("name", text); 
-                                this.setState({address: text}); 
+                                this.handleChange("name", text); 
                             }}>
                         </TextInput>
-
                         <Text>Emergency Contact Number</Text>
                         <TextInput
                             style={styles.address}
