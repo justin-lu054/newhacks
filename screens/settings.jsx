@@ -41,6 +41,8 @@ const styles = StyleSheet.create({
 
 class Settings extends Component {
     state = {
+        yourname: "",
+        yourcontact: "",
         address: "", 
         name: "", 
         contact: "",
@@ -57,17 +59,30 @@ class Settings extends Component {
     }
     
     saveData = async () => {
+        const {address, name, contact, yourname, yourcontact} = this.state;
+        if (!(address && name && contact && yourname && yourcontact)) {
+            alert("Please fill in all fields");
+            return; 
+        }
+        if (address.trim === "" || name.trim === "" || contact.trim === "" || yourname.trim === "" || yourcontact.trim === "") {
+            alert("Please fill in all fields"); 
+            return; 
+        }
+        await AsyncStorage.setItem("yourname", yourname); 
+        await AsyncStorage.setItem("yourcontact", yourcontact); 
+        await AsyncStorage.setItem("address", address); //.then(console.log("test")); 
+        await AsyncStorage.setItem("name", name); //.then(console.log("test2")); 
+        await AsyncStorage.setItem("contact", contact); //.then(console.log("test3")).then(alert("Information saved!")); 
         alert("Information saved!"); 
-        await AsyncStorage.setItem("address", this.state.address); //.then(console.log("test")); 
-        await AsyncStorage.setItem("name", this.state.name); //.then(console.log("test2")); 
-        await AsyncStorage.setItem("contact", this.state.contact); //.then(console.log("test3")).then(alert("Information saved!")); 
     }
 
     componentDidMount = async () => {
         address = await AsyncStorage.getItem("address");
         name = await AsyncStorage.getItem("name"); 
         contact = await AsyncStorage.getItem("contact"); 
-        this.setState({"address": address, "name": name, "contact": contact}); 
+        yourname = await AsyncStorage.getItem("yourname"); 
+        yourcontact = await AsyncStorage.getItem("yourcontact"); 
+        this.setState({"address": address, "name": name, "contact": contact, "yourname": yourname, "yourcontact": yourcontact}); 
     }
 
     onChangeAddress = async (address) => {
@@ -100,11 +115,31 @@ class Settings extends Component {
            <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <ScrollView>
                     <View>
+                        <Text>Your Name</Text>
+                        <TextInput 
+                            style={styles.address}
+                            placeholder="Your Name"
+                            maxLength={30}
+                            value={this.state.yourname}
+                            onChangeText={(text) => {
+                                this.handleChange("yourname", text);
+                            }}>
+                        </TextInput>
+                        <Text>Your Number</Text>
+                        <TextInput
+                            style={styles.address}
+                            placeholder="Your Number"
+                            maxLength={30}
+                            value={this.state.yourcontact}
+                            onChangeText = {(text) => {
+                                this.handleChange("yourcontact", text); 
+                            }}>
+                        </TextInput>
                         <Text>Emergency Contact Name</Text>
                         <TextInput
                             style={styles.address}
                             placeholder="Contact Name"
-                            maxLength={20}
+                            maxLength={30}
                             value={this.state.name}
                             onChangeText={(text) =>  {
                                 this.handleChange("name", text); 
