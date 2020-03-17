@@ -97,8 +97,6 @@ class Settings extends Component {
 
     render() {
 
-
-        
         const locationSuggestions = this.state.locationSuggestions.map(
             prediction => (
                 <TouchableHighlight key={prediction.id}
@@ -110,7 +108,6 @@ class Settings extends Component {
             )
         );
         
-
         return (
            <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <ScrollView>

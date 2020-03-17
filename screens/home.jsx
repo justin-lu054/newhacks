@@ -130,6 +130,18 @@ class GetHome extends Component {
             return; 
         }
 
+        const address = await AsyncStorage.getItem("address"); 
+        const name = await AsyncStorage.getItem("name");
+        const yourname = await AsyncStorage.getItem("yourname"); 
+        const contact = await AsyncStorage.getItem("contact"); 
+        const yourcontact = await AsyncStorage.getItem("yourcontact"); 
+
+        //ensure that settings rae filled out1 
+        if (!(address && name && yourname && contact && yourcontact)) {
+            alert("Please fill out all the fields in settings first!"); 
+            return; 
+        }
+
         //create local notification channel if android
         if (Platform.OS === "android") {
             await Notifications.createChannelAndroidAsync("notifications", {
@@ -141,7 +153,6 @@ class GetHome extends Component {
         }
 
         await this.getLocationAsync(); 
-        const address = await AsyncStorage.getItem("address"); 
         const homeCoords = await this.getHomeCoords(address); 
 
         //begin location tracking every minute
@@ -216,10 +227,10 @@ TaskManager.defineTask("firstTask", ({data, error}) => {
         return; 
     }
     if (data) {
+        //AsyncStorage.getItem("address").then((result) => console.log(result));
         const {locations} = data; 
         counter++; 
         console.log("counter", counter); 
-        
         locationHistory.push([locations[0].coords.latitude, locations[0].coords.longitude]); 
         if (locationHistory.length > 1) {
             distanceTravelled += haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
@@ -243,6 +254,19 @@ TaskManager.defineTask("firstTask", ({data, error}) => {
         }
         if (counter > 20 && distanceTravelled < 0.1) {
             console.log("Sending text message...."); 
+            options = {
+                method : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }, 
+                body: JSON.stringify({
+                    content: "This is a Test LMFAO", 
+                    to: "+16478946767"
+                })
+            };
+            fetch("http://192.168.0.14:3000/text", options)
+            .then(() => console.log("Message sent."))
+            .catch(err => console.log(err)); 
         }
         console.log(distanceTravelled);
     }
