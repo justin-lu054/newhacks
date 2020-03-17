@@ -33,6 +33,9 @@ const styles = StyleSheet.create({
   }
 });
 
+
+
+
 class GetHome extends Component {
     state = {
         coordinates: [], 
@@ -95,12 +98,8 @@ class GetHome extends Component {
             return error; 
         }
     }
-    
+
     async getLocationAsync() {
-        var { status } = await Permissions.askAsync(Permissions.LOCATION); 
-        if (status !== "granted") {
-            alert("Permission to access location denied."); 
-        }
         var location = await Location.getCurrentPositionAsync({}); 
         this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
@@ -115,17 +114,26 @@ class GetHome extends Component {
             })
         })
     }
-    
+
 
     async componentDidMount() {
+        var { status } = await Permissions.askAsync(Permissions.LOCATION); 
+        if (status !== "granted") {
+            alert("Permission to access location denied."); 
+            return; 
+        }
         await this.getLocationAsync(); 
         const address = await AsyncStorage.getItem("address"); 
         const homeCoords = await this.getHomeCoords(address); 
 
-        //begin location tracking every 100 seconds
+        //begin location tracking every minute
         await Location.startLocationUpdatesAsync("firstTask", {
             accuracy: Location.Accuracy.BestForNavigation, 
-            timeInterval: 1
+            timeInterval: 60000, 
+            foregroundService: {
+                notificationTitle: "Tracking your location",
+                notificationBody: "We're doing this to keep you safe!"
+            }
         });
 
         this.setState({address: address}, () => {
