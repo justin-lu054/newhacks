@@ -57,10 +57,10 @@ class Settings extends Component {
     }
     
     saveData = async () => {
+        alert("Information saved!"); 
         await AsyncStorage.setItem("address", this.state.address); //.then(console.log("test")); 
         await AsyncStorage.setItem("name", this.state.name); //.then(console.log("test2")); 
         await AsyncStorage.setItem("contact", this.state.contact); //.then(console.log("test3")).then(alert("Information saved!")); 
-        alert("Information saved!"); 
     }
 
     componentDidMount = async () => {

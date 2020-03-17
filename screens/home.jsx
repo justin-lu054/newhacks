@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage } from 'react-native';
+import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage, Platform } from 'react-native';
 import MapView from 'react-native-maps'; 
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
@@ -8,6 +8,8 @@ import getDirections from 'react-native-google-maps-directions';
 import apikeys from '../apikeys.json'; 
 import * as TaskManager from 'expo-task-manager'; 
 import haversine from 'haversine';
+import { Notifications } from 'expo';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,7 +18,6 @@ const styles = StyleSheet.create({
       alignItems: "center"
   },
 
-   
   buttonStyle: {
       height: 100, 
       width: '100%', 
@@ -32,8 +33,6 @@ const styles = StyleSheet.create({
       height: Dimensions.get("window").height
   }
 });
-
-
 
 
 class GetHome extends Component {
@@ -99,7 +98,7 @@ class GetHome extends Component {
         }
     }
 
-    async getLocationAsync() {
+    getLocationAsync = async () => {
         var location = await Location.getCurrentPositionAsync({}); 
         this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
@@ -117,11 +116,30 @@ class GetHome extends Component {
 
 
     async componentDidMount() {
+        //get permissions
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
         if (status !== "granted") {
-            alert("Permission to access location denied."); 
+            alert("Permission to access location denied. This function will not work."); 
             return; 
         }
+        var { status } = await Permissions.askAsync(
+            Permissions.NOTIFICATIONS
+        ); 
+        if (status !== "granted") {
+            alert("Permission for notifications denied. This function will not work."); 
+            return; 
+        }
+
+        //create local notification channel if android
+        if (Platform.OS === "android") {
+            await Notifications.createChannelAndroidAsync("notifications", {
+                name: "Notifications", 
+                sound: true, 
+                priority: "high",
+                vibrate: [0, 500] 
+            });
+        }
+
         await this.getLocationAsync(); 
         const address = await AsyncStorage.getItem("address"); 
         const homeCoords = await this.getHomeCoords(address); 
@@ -185,9 +203,13 @@ class GetHome extends Component {
     }
 }
 
+//trackers for taskmanager
 var distanceTravelled = 0; 
 var counter = 0; 
 var locationHistory = []; 
+var warningShowed = false; 
+
+//foreground/background task to track user distance travelled
 TaskManager.defineTask("firstTask", ({data, error}) => {
     if (error) {
         console.log("error", error); 
@@ -205,9 +227,26 @@ TaskManager.defineTask("firstTask", ({data, error}) => {
             });
             locationHistory.shift(); 
         }
+        if (counter > 10 && distanceTravelled < 0.05 && !warningShowed) {
+            console.log("Inactivity detected"); 
+            const warnNotification = {
+                title: "Are you alright?", 
+                body: "We have not detected movement in a while. We will reach out to your emergency contact soon.", 
+                ios: {
+                    sound: true
+                },
+                android: {
+                    channelId: "notifications"
+                }
+            }
+            Notifications.presentLocalNotificationAsync(warnNotification).then(() => warningShowed = true); 
+        }
+        if (counter > 20 && distanceTravelled < 0.1) {
+            console.log("Sending text message...."); 
+        }
         console.log(distanceTravelled);
     }
-})
+}); 
 
 
 export default GetHome;
