@@ -7,6 +7,7 @@ import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions'; 
 import apikeys from '../apikeys.json'; 
 import * as TaskManager from 'expo-task-manager'; 
+import haversine from 'haversine';
 
 const styles = StyleSheet.create({
   container: {
@@ -124,7 +125,7 @@ class GetHome extends Component {
         //begin location tracking every 100 seconds
         await Location.startLocationUpdatesAsync("firstTask", {
             accuracy: Location.Accuracy.BestForNavigation, 
-            timeInterval: 100
+            timeInterval: 1
         });
 
         this.setState({address: address}, () => {
@@ -176,6 +177,9 @@ class GetHome extends Component {
     }
 }
 
+var distanceTravelled = 0; 
+var counter = 0; 
+var locationHistory = []; 
 TaskManager.defineTask("firstTask", ({data, error}) => {
     if (error) {
         console.log("error", error); 
@@ -183,7 +187,17 @@ TaskManager.defineTask("firstTask", ({data, error}) => {
     }
     if (data) {
         const {locations} = data; 
-        console.log("locations", locations); 
+        counter++; 
+        console.log("counter", counter); 
+        
+        locationHistory.push([locations[0].coords.latitude, locations[0].coords.longitude]); 
+        if (locationHistory.length > 1) {
+            distanceTravelled += haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
+                format: "[lat,lon]"
+            });
+            locationHistory.shift(); 
+        }
+        console.log(distanceTravelled);
     }
 })
 

@@ -16,6 +16,7 @@
     "expo-module-scripts": "^1.2.0",
     "expo-sms": "^8.0.0",
     "expo-task-manager": "^8.0.0",
+    "haversine": "^1.1.1",
     "native-base": "^2.13.8",
     "node-fetch": "^2.6.0",
     "react": "~16.9.0",

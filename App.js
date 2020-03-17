@@ -10,7 +10,6 @@ import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Settings from './screens/settings'; 
-
 const Stack = createStackNavigator();
 
 const styles = StyleSheet.create({
@@ -55,14 +54,14 @@ export default class App extends Component {
 
   myStack() {
     return (
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Main Menu">
-          <Stack.Screen style={{flex: 1}} name="Main Menu" component={MainMenu} />
-          <Stack.Screen name="GetHome" component={GetHome} />
-          <Stack.Screen name="Food" component={Food} />
-          <Stack.Screen name="Settings" component={Settings} />
-        </Stack.Navigator>
-      </NavigationContainer>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Main Menu">
+            <Stack.Screen style={{flex: 1}} name="Main Menu" component={MainMenu} />
+            <Stack.Screen name="GetHome" component={GetHome} />
+            <Stack.Screen name="Food" component={Food} />
+            <Stack.Screen name="Settings" component={Settings} />
+          </Stack.Navigator>
+        </NavigationContainer>
     );
   }
 
