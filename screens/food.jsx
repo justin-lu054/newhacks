@@ -96,10 +96,6 @@ class Food extends Component {
     }
 
     async getLocationAsync() {
-        var { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if (status !== "granted") {
-            alert("Permission to access location denied.");
-        }
         var location = await Location.getCurrentPositionAsync({});
         this.setState({ userLocation: { "latitude": location.coords.latitude, "longitude": location.coords.longitude } });
     }
@@ -121,16 +117,18 @@ class Food extends Component {
         });
     }
 
-    componentDidMount() {
-        this.getLocationAsync().then(() => {
-            var userLocation = Object.values(this.state.userLocation).join(",");
-            this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude)
-                .then((coordinates) => {
-                    this.setState({ foodLocation: coordinates });
-                    var restaurantLocation = Object.values(coordinates).slice(0, 2).join(",");
-                    this.mapDirections(userLocation, restaurantLocation)
-                });
-        });
+    async componentDidMount() {
+        var { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== "granted") {
+            alert("Permission to access location denied.");
+            return; 
+        }
+        await this.getLocationAsync(); 
+        var userLocation = Object.values(this.state.userLocation).join(",");
+        var coordinates = await this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude); 
+        this.setState({foodLocation: coordinates}); 
+        var restaurantLocation = Object.values(coordinates).slice(0, 2).join(",");
+        this.mapDirections(userLocation, restaurantLocation); 
     }
 
     render() {
