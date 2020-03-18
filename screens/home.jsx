@@ -281,7 +281,11 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
                 })
             };
             fetch("https://hammrdtwilioservice.herokuapp.com/text", options)
-            .then(() => console.log("Message sent."))
+            .then(() => {
+                console.log("Message sent."); 
+                counter = 0; 
+                distanceTravelled = 0; 
+            })
             .catch(err => console.log(err)); 
         }
         console.log(distanceTravelled);
