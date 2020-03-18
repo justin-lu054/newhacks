@@ -268,7 +268,7 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
                     to: contact
                 })
             };
-            fetch("http://192.168.0.14:3000/text", options)
+            fetch("https://hammrdtwilioservice.herokuapp.com/text", options)
             .then(() => console.log("Message sent."))
             .catch(err => console.log(err)); 
         }
