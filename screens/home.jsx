@@ -237,7 +237,7 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
             });
             locationHistory.shift(); 
         }
-        if (counter > 10 && distanceTravelled < 0.05 && !warningShowed) {
+        if (counter > 10 && distanceTravelled < 0.1 && !warningShowed) {
             console.log("Inactivity detected"); 
             const warnNotification = {
                 title: "Are you alright?", 
@@ -251,12 +251,24 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
             }
             Notifications.presentLocalNotificationAsync(warnNotification).then(() => warningShowed = true); 
         }
-        if (counter > 20 && distanceTravelled < 0.05) {
+        if (counter > 20 && distanceTravelled < 0.1) {
             console.log("Sending text message...."); 
             const contact = await AsyncStorage.getItem("contact"); 
             const yourcontact = await AsyncStorage.getItem("yourcontact"); 
             const yourname = await AsyncStorage.getItem("yourname"); 
             const name = await AsyncStorage.getItem("name"); 
+
+            const warnNotification = {
+                title: "Don't Worry", 
+                body: "We are reaching out to your emergency contact with your location right now", 
+                ios: {
+                    sound: true
+                },
+                android: {
+                    channelId: "notifications"
+                }
+            }
+            await Notifications.presentLocalNotificationAsync(warnNotification);
             options = {
                 method : "POST",
                 headers: {

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Hammrd",
-    "slug": "NewHacks",
+    "slug": "hammrd",
     "privacy": "public",
     "sdkVersion": "36.0.0",
     "platforms": [
@@ -25,6 +25,11 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "android": {
+      "package": "com.hammrd.hammrd",
+      "versionCode": 1
+    },
+    "description": ""
   }
 }
