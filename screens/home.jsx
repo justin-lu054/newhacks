@@ -221,13 +221,12 @@ var locationHistory = [];
 var warningShowed = false; 
 
 //foreground/background task to track user distance travelled
-TaskManager.defineTask("firstTask", ({data, error}) => {
+TaskManager.defineTask("firstTask", async ({data, error}) => {
     if (error) {
         console.log("error", error); 
         return; 
     }
     if (data) {
-        //AsyncStorage.getItem("address").then((result) => console.log(result));
         const {locations} = data; 
         counter++; 
         console.log("counter", counter); 
@@ -252,16 +251,21 @@ TaskManager.defineTask("firstTask", ({data, error}) => {
             }
             Notifications.presentLocalNotificationAsync(warnNotification).then(() => warningShowed = true); 
         }
-        if (counter > 20 && distanceTravelled < 0.1) {
+        if (counter > 20 && distanceTravelled < 0.05) {
             console.log("Sending text message...."); 
+            const contact = await AsyncStorage.getItem("contact"); 
+            const yourcontact = await AsyncStorage.getItem("yourcontact"); 
+            const yourname = await AsyncStorage.getItem("yourname"); 
+            const name = await AsyncStorage.getItem("name"); 
             options = {
                 method : "POST",
                 headers: {
                     "Content-Type": "application/json"
                 }, 
                 body: JSON.stringify({
-                    content: "This is a Test LMFAO", 
-                    to: "+16478946767"
+                    content: `Hi ${name}, ${yourname} has been outside and motionless for over 20 minutes\
+                            at ${locationHistory[locationHistory.length - 1]}. You can contact them at ${yourcontact}`, 
+                    to: contact
                 })
             };
             fetch("http://192.168.0.14:3000/text", options)
