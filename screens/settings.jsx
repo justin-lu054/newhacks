@@ -60,6 +60,7 @@ class Settings extends Component {
     
     saveData = async () => {
         const {address, name, contact, yourname, yourcontact} = this.state;
+        //validate that everything is filled in 
         if (!(address && name && contact && yourname && yourcontact)) {
             alert("Please fill in all fields");
             return; 
@@ -68,6 +69,14 @@ class Settings extends Component {
             alert("Please fill in all fields"); 
             return; 
         }
+
+        //validate phone numbers
+        const validPhoneNumber = new RegExp(/\+1[2-9]\d{9}/);
+        if (!(validPhoneNumber.test(yourcontact) && validPhoneNumber.test(contact))) {
+            alert("Please enter your phone number in the format +1xxxxxxxxxx. Only North American numbers are supported"); 
+            return; 
+        }
+
         await AsyncStorage.setItem("yourname", yourname); 
         await AsyncStorage.setItem("yourcontact", yourcontact); 
         await AsyncStorage.setItem("address", address); //.then(console.log("test")); 
