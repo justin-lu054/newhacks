@@ -28,7 +28,13 @@
     },
     "android": {
       "package": "com.hammrd.hammrd",
-      "versionCode": 1
+      "versionCode": 1, 
+      "config": {
+        "googleMaps": {
+          "apiKey": "API_KEY_HERE"
+        }
+      },
+      "icon": "assets/appicon.png"
     },
     "description": ""
   }
