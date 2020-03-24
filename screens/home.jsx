@@ -103,18 +103,6 @@ class GetHome extends Component {
         this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
     }
     
-    getHomeCoords = async (address) => {
-        return new Promise((resolve, reject) => {
-            fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
-            .then(res => res.json())
-            .then(json => {
-                var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
-                resolve(coordinates); 
-            })
-        })
-    }
-
-
     async componentDidMount() {
         //get permissions
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
@@ -153,7 +141,7 @@ class GetHome extends Component {
         }
 
         await this.getLocationAsync(); 
-        const homeCoords = await this.getHomeCoords(address); 
+        const homeCoords = await getHomeCoords(address); 
 
         //begin location tracking every minute
         await Location.startLocationUpdatesAsync("firstTask", {
@@ -214,6 +202,17 @@ class GetHome extends Component {
     }
 }
 
+async function getHomeCoords(address){
+    return new Promise((resolve, reject) => {
+        fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
+        .then(res => res.json())
+        .then(json => {
+            var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
+            resolve(coordinates); 
+        })
+    })
+}
+
 //trackers for taskmanager
 var distanceTravelled = 0; 
 var counter = 0; 
@@ -231,12 +230,36 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
         counter++; 
         console.log("counter", counter); 
         locationHistory.push([locations[0].coords.latitude, locations[0].coords.longitude]); 
+        
         if (locationHistory.length > 1) {
             distanceTravelled += haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
                 format: "[lat,lon]"
             });
-            locationHistory.shift(); 
+            locationHistory.shift();
+
+            const address = await AsyncStorage.getItem("address"); 
+            const addressCoordsObj = await getHomeCoords(address); 
+            const addressCoords = [addressCoordsObj.latitude, addressCoordsObj.longitude]; 
+            var distanceFromHome = haversine(locationHistory[locationHistory.length - 1], addressCoords, {
+                format: "[lat,lon]"
+            });
+            if (distanceFromHome < 0.2) {
+                const safeNotification = {
+                    title: "Welcome home!",
+                    body: "Glad to see that you got home safe. We will stop tracking your location",
+                    ios: {
+                        sound: true
+                    }, 
+                    android: {
+                        channelId: "notifications"
+                    }
+                }
+                //kill the task
+                Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("firstTask")); 
+            } 
         }
+        
+        //10 minutes without significant movement
         if (counter === 10 && distanceTravelled < 0.1 && !warningShowed) {
             console.log("Inactivity detected"); 
             const warnNotification = {
@@ -251,6 +274,7 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
             }
             Notifications.presentLocalNotificationAsync(warnNotification).then(() => warningShowed = true); 
         }
+        //20 minutes without significant movement
         if (counter === 20) {
             if (distanceTravelled < 0.1) {
                 console.log("Sending text message...."); 
