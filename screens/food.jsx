@@ -138,7 +138,7 @@ class Food extends Component {
             <React.Fragment>
                 <View style={styles.container}>
                     {userLocation && (
-                        <TouchableOpacity onPress={() => navigation.navigate("GetHome")} title="Home"
+                        <TouchableOpacity title="Home" onPress={this.handleGetDirections}
                         style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
                             <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium' }}>
                                 {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
