@@ -143,15 +143,17 @@ class GetHome extends Component {
         await this.getLocationAsync(); 
         const homeCoords = await getHomeCoords(address); 
 
-        //begin location tracking every minute
-        await Location.startLocationUpdatesAsync("firstTask", {
-            accuracy: Location.Accuracy.BestForNavigation, 
-            timeInterval: 60000, 
-            foregroundService: {
-                notificationTitle: "Tracking your location",
-                notificationBody: "We're doing this to keep you safe!"
-            }
-        });
+        if(!TaskManager.isTaskDefined("trackLocation")) {
+            //begin location tracking every minute
+            await Location.startLocationUpdatesAsync("trackLocation", {
+                accuracy: Location.Accuracy.BestForNavigation, 
+                timeInterval: 60000, 
+                foregroundService: {
+                    notificationTitle: "Tracking your location",
+                    notificationBody: "We're doing this to keep you safe!"
+                }
+            });
+        }
 
         this.setState({address: address}, () => {
             this.setState({homeLocation: homeCoords}, () => {
@@ -220,7 +222,7 @@ var locationHistory = [];
 var warningShowed = false; 
 
 //foreground/background task to track user distance travelled
-TaskManager.defineTask("firstTask", async ({data, error}) => {
+TaskManager.defineTask("trackLocation", async ({data, error}) => {
     if (error) {
         console.log("error", error); 
         return; 
@@ -255,7 +257,7 @@ TaskManager.defineTask("firstTask", async ({data, error}) => {
                     }
                 }
                 //kill the task
-                Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("firstTask")); 
+                Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("trackLocation")); 
             } 
         }
         
