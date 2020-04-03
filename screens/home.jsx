@@ -190,8 +190,8 @@ class GetHome extends Component {
                             region={{
                                 latitude: userLocation!=null ? userLocation.latitude : 37.78825,
                                 longitude: userLocation!=null ? userLocation.longitude : -122.4234,
-                                latitudeDelta: 0.01, 
-                                longitudeDelta: 0.01
+                                latitudeDelta: userLocation!=null ? 0.01 : 15, 
+                                longitudeDelta: userLocation!=null ? 0.01 : 15
                             }}>
                         {(userLocation) && (
                             <MapView.Marker coordinate={userLocation}>

@@ -71,7 +71,7 @@ class Settings extends Component {
         }
 
         //validate phone numbers
-        const validPhoneNumber = new RegExp(/\+1[2-9]\d{9}/);
+        const validPhoneNumber = new RegExp(/^\+1[2-9]\d{9}$/);
         if (!(validPhoneNumber.test(yourcontact) && validPhoneNumber.test(contact))) {
             alert("Please enter your phone number in the format +1xxxxxxxxxx. Only North American numbers are supported"); 
             return; 
