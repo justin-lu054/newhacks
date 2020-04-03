@@ -4,7 +4,7 @@ Picture this, it's 4 am, you stumble out of the bar absolutely shit-faced. You n
 
 Expo Link: https://expo.io/@justin-lu054/hammrd
 
-APK Download: https://exp-shell-app-assets.s3.us-west-1.amazonaws.com/android/%40justin-lu054/hammrd-4194f07d4d31463ba656af322d79de47-signed.apk
+APK Download: https://expo.io/artifacts/91b4c425-37b7-4eca-a702-ce2f38fd30da
 |----------|----------|
 |----------|----------|
 |![screen1](https://i.imgur.com/WczcVIr.jpg)|![screen2](https://i.imgur.com/j0oxMhv.jpg)|
