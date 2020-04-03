@@ -140,7 +140,7 @@ class Food extends Component {
                     {userLocation && (
                         <TouchableOpacity title="Home" onPress={this.handleGetDirections}
                         style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
-                            <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium' }}>
+                            <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium', marginLeft: 15, marginRight: 10}}>
                                 {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
                             </Text>
                         </TouchableOpacity>
