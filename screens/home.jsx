@@ -81,6 +81,10 @@ class GetHome extends Component {
                 `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
             );
             let respJson = await resp.json(); 
+            //there will be no coordinates in the route array if there is no existing route...
+            if (respJson.routes.length === 0) {
+                throw new Error("No walking route found to this location!"); 
+            }
             let points = Polyline.decode(respJson.routes[0].overview_polyline.points); 
             let coords = points.map((point, index) => {
                 return {
@@ -93,8 +97,9 @@ class GetHome extends Component {
             return coords; 
         }
         catch (error) {
-            alert(error); 
-            return error; 
+            const { navigation } = this.props; 
+            alert(error.message); 
+            navigation.goBack(); 
         }
     }
 
@@ -105,9 +110,11 @@ class GetHome extends Component {
     
     async componentDidMount() {
         //get permissions
+        const { navigation } = this.props; 
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
         if (status !== "granted") {
             alert("Permission to access location denied. This function will not work."); 
+            navigation.goBack(); 
             return; 
         }
         var { status } = await Permissions.askAsync(
@@ -115,6 +122,7 @@ class GetHome extends Component {
         ); 
         if (status !== "granted") {
             alert("Permission for notifications denied. This function will not work."); 
+            navigation.goBack(); 
             return; 
         }
 
@@ -127,6 +135,7 @@ class GetHome extends Component {
         //ensure that settings rae filled out1 
         if (!(address && name && yourname && contact && yourcontact)) {
             alert("Please fill out all the fields in settings first!"); 
+            navigation.goBack(); 
             return; 
         }
 
@@ -141,8 +150,16 @@ class GetHome extends Component {
         }
 
         await this.getLocationAsync(); 
-        const homeCoords = await getHomeCoords(address); 
-
+        var homeCoords = ""; 
+        try {
+            homeCoords = await getHomeCoords(address); 
+        }
+        catch(err) {
+            alert(err); 
+            navigation.goBack(); 
+            return; 
+        }
+        
         if(!TaskManager.isTaskDefined("trackLocation")) {
             //begin location tracking every minute
             await Location.startLocationUpdatesAsync("trackLocation", {
@@ -209,6 +226,12 @@ async function getHomeCoords(address){
         fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
         .then(res => res.json())
         .then(json => {
+            //if an invalid home address is entered
+            if (json.candidates.length === 0) {
+                reject("No results found. Please provide a valid address");
+                return;
+            }
+
             var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
             resolve(coordinates); 
         })
