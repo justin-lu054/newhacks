@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, TouchableNativeFeedback } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import * as Location from 'expo-location';
@@ -25,10 +25,17 @@ const styles = StyleSheet.create({
         opacity: 0.75,
         borderRadius: 30
     },
-
     mapStyle: {
         width: Dimensions.get("window").width,
         height: Dimensions.get("window").height
+    }, 
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center"
+    }, 
+    loadingHorizontal: {
+        flexDirection: "row", 
+        justifyContent: "center"
     }
 });
 
@@ -134,6 +141,18 @@ class Food extends Component {
     render() {
         const { userLocation } = this.state;
         const { foodLocation } = this.state;
+
+        //loading circle
+        if (!(userLocation && foodLocation)) {
+            return (
+                <React.Fragment>
+                    <View style={[styles.loadingContainer, styles.loadingHorizontal]}>
+                        <ActivityIndicator size="large"></ActivityIndicator>
+                    </View>
+                </React.Fragment>
+            );
+        }
+
         return (
             <React.Fragment>
                 <View style={styles.container}>

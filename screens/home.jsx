@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage, Platform, Alert } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, ActivityIndicator, TouchableOpacity, AsyncStorage, Platform, Alert } from 'react-native';
 import MapView from 'react-native-maps'; 
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
@@ -12,26 +12,34 @@ import { Notifications } from 'expo';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
-  container: {
-      flex: 2,
-      justifyContent: "center",
-      alignItems: "center"
-  },
+    container: {
+        flex: 2,
+        justifyContent: "center",
+        alignItems: "center"
+    },
 
-  buttonStyle: {
-      height: 100, 
-      width: '100%', 
-      backgroundColor: '#c471f5',
-      justifyContent: 'center',
-      alignItems: 'center',
-      opacity: 0.75,
-      borderRadius: 30
-  },
+    buttonStyle: {
+        height: 100,
+        width: '100%',
+        backgroundColor: '#c471f5',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 0.75,
+        borderRadius: 30
+    },
 
-  mapStyle: {
-      width: Dimensions.get("window").width, 
-      height: Dimensions.get("window").height
-  }
+    mapStyle: {
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center"
+    },
+    loadingHorizontal: {
+        flexDirection: "row",
+        justifyContent: "center"
+    }
 });
 
 
@@ -159,8 +167,10 @@ class GetHome extends Component {
             navigation.goBack(); 
             return; 
         }
-        
-        if(!TaskManager.isTaskDefined("trackLocation")) {
+    
+
+        const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+        if(!alreadyTracking) {
             //begin location tracking every minute
             await Location.startLocationUpdatesAsync("trackLocation", {
                 accuracy: Location.Accuracy.BestForNavigation, 
@@ -171,7 +181,6 @@ class GetHome extends Component {
                 }
             });
         }
-
         this.setState({address: address}, () => {
             this.setState({homeLocation: homeCoords}, () => {
                 const userLocationString = Object.values(this.state.userLocation).join(","); 
@@ -183,6 +192,17 @@ class GetHome extends Component {
 
     render() {
         const {userLocation, homeLocation} = this.state; 
+        
+        if (!(userLocation && homeLocation)) {
+            return (
+                <React.Fragment>
+                    <View style={[styles.loadingContainer, styles.loadingHorizontal]}>
+                        <ActivityIndicator size="large"></ActivityIndicator>
+                    </View>
+                </React.Fragment>
+            );
+        }
+        
         return (
             <React.Fragment>
                 <View style={styles.container}>
@@ -279,8 +299,13 @@ TaskManager.defineTask("trackLocation", async ({data, error}) => {
                         channelId: "notifications"
                     }
                 }
-                //kill the task
-                Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("trackLocation")); 
+                //kill the task and reset counters
+                await Notifications.presentLocalNotificationAsync(safeNotification);
+                await Location.stopLocationUpdatesAsync("trackLocation"); 
+                counter = 0; 
+                distanceTravelled = 0; 
+                warningShowed = false; 
+                //Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("trackLocation")); 
             } 
         }
         
