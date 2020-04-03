@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage, Platform } from 'react-native';
+import { View, StyleSheet, Button, Text, Dimensions, Icon, TouchableOpacity, AsyncStorage, Platform, Alert } from 'react-native';
 import MapView from 'react-native-maps'; 
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
@@ -98,7 +98,7 @@ class GetHome extends Component {
         }
         catch (error) {
             const { navigation } = this.props; 
-            alert(error.message); 
+            Alert.alert("error", error.message); 
             navigation.goBack(); 
         }
     }
@@ -113,7 +113,7 @@ class GetHome extends Component {
         const { navigation } = this.props; 
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
         if (status !== "granted") {
-            alert("Permission to access location denied. This function will not work."); 
+            Alert.alert("Error", "Permission to access location denied. This function will not work."); 
             navigation.goBack(); 
             return; 
         }
@@ -121,7 +121,7 @@ class GetHome extends Component {
             Permissions.NOTIFICATIONS
         ); 
         if (status !== "granted") {
-            alert("Permission for notifications denied. This function will not work."); 
+            Alert.alert("Error", "Permission for notifications denied. This function will not work."); 
             navigation.goBack(); 
             return; 
         }
@@ -134,7 +134,7 @@ class GetHome extends Component {
 
         //ensure that settings rae filled out1 
         if (!(address && name && yourname && contact && yourcontact)) {
-            alert("Please fill out all the fields in settings first!"); 
+            Alert.alert("Error", "Please fill out all the fields in settings first!"); 
             navigation.goBack(); 
             return; 
         }
@@ -155,7 +155,7 @@ class GetHome extends Component {
             homeCoords = await getHomeCoords(address); 
         }
         catch(err) {
-            alert(err); 
+            Alert.alert("Error", err); 
             navigation.goBack(); 
             return; 
         }

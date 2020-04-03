@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight, ScrollView, FlatList, ListRenderItem} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight, ScrollView, Alert} from 'react-native';
 import apikeys from '../apikeys.json';
 import _ from "lodash";
 
@@ -62,18 +62,18 @@ class Settings extends Component {
         const {address, name, contact, yourname, yourcontact} = this.state;
         //validate that everything is filled in 
         if (!(address && name && contact && yourname && yourcontact)) {
-            alert("Please fill in all fields");
+            Alert.alert("Looks like you're missing something!", "Please fill in all fields");
             return; 
         }
         if (address.trim === "" || name.trim === "" || contact.trim === "" || yourname.trim === "" || yourcontact.trim === "") {
-            alert("Please fill in all fields"); 
+            Alert.alert("Looks like you're missing something!", "Please fill in all fields"); 
             return; 
         }
 
         //validate phone numbers
         const validPhoneNumber = new RegExp(/^\+1[2-9]\d{9}$/);
         if (!(validPhoneNumber.test(yourcontact) && validPhoneNumber.test(contact))) {
-            alert("Please enter your phone number in the format +1xxxxxxxxxx. Only North American numbers are supported"); 
+            Alert.alert("Invalid phone number", "Please enter your phone number in the format +1xxxxxxxxxx. Only North American numbers are supported"); 
             return; 
         }
 
@@ -82,7 +82,7 @@ class Settings extends Component {
         await AsyncStorage.setItem("address", address); //.then(console.log("test")); 
         await AsyncStorage.setItem("name", name); //.then(console.log("test2")); 
         await AsyncStorage.setItem("contact", contact); //.then(console.log("test3")).then(alert("Information saved!")); 
-        alert("Information saved!"); 
+        Alert.alert("Success!", "Information saved!"); 
     }
 
     componentDidMount = async () => {
