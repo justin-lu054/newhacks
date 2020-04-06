@@ -9,6 +9,7 @@ import { StyleSheet, Image, Text, View } from "react-native";
 import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import * as TaskManager from 'expo-task-manager'; 
 import Settings from './screens/settings'; 
 const Stack = createStackNavigator();
 
@@ -63,6 +64,14 @@ export default class App extends Component {
           </Stack.Navigator>
         </NavigationContainer>
     );
+  }
+
+  async componentDidMount() {
+    //if the location tracking task is still persistent.... remove it
+    const isLocationTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+    if (isLocationTracking) {
+      await TaskManager.unregisterTaskAsync("trackLocation"); 
+    }
   }
 
   render() {

@@ -84,31 +84,25 @@ class GetHome extends Component {
     }
 
     mapDirections = async (startLoc, destinationLoc) => {
-        try {
-            let resp = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
-            );
-            let respJson = await resp.json(); 
-            //there will be no coordinates in the route array if there is no existing route...
-            if (respJson.routes.length === 0) {
-                throw new Error("No walking route found to this location!"); 
-            }
-            let points = Polyline.decode(respJson.routes[0].overview_polyline.points); 
-            let coords = points.map((point, index) => {
-                return {
-                    latitude: point[0], 
-                    longitude: point[1]
-                };
-            }); 
-            const newCoords = [...this.state.coordinates, coords]; 
-            this.setState({coordinates: newCoords}); 
-            return coords; 
+        let resp = await fetch(
+            `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
+        );
+        let respJson = await resp.json();
+        //there will be no coordinates in the route array if there is no existing route...
+        if (respJson.routes.length === 0) {
+            const err = new Error("No walking route found to this location!");
+            return Promise.reject(err); 
         }
-        catch (error) {
-            const { navigation } = this.props; 
-            Alert.alert("error", error.message); 
-            navigation.goBack(); 
-        }
+        let points = Polyline.decode(respJson.routes[0].overview_polyline.points);
+        let coords = points.map((point, index) => {
+            return {
+                latitude: point[0],
+                longitude: point[1]
+            };
+        });
+        const newCoords = [...this.state.coordinates, coords];
+        this.setState({ coordinates: newCoords });
+        return coords; 
     }
 
     getLocationAsync = async () => {
@@ -167,27 +161,33 @@ class GetHome extends Component {
             navigation.goBack(); 
             return; 
         }
-    
 
-        const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
-        if(!alreadyTracking) {
-            //begin location tracking every minute
-            await Location.startLocationUpdatesAsync("trackLocation", {
-                accuracy: Location.Accuracy.BestForNavigation, 
-                timeInterval: 60000, 
-                foregroundService: {
-                    notificationTitle: "Tracking your location",
-                    notificationBody: "We're doing this to keep you safe!"
-                }
-            });
+        const userLocationString = Object.values(this.state.userLocation); 
+        const homeLocationString = Object.values(homeCoords); 
+        try {
+            await this.mapDirections(userLocationString, homeLocationString); 
+            this.setState({address: address}); 
+            this.setState({homeLocation: homeCoords}); 
+
+            const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+            if(!alreadyTracking) {
+                //begin location tracking every minute
+                console.log("Beginning tracking..."); 
+                await Location.startLocationUpdatesAsync("trackLocation", {
+                    accuracy: Location.Accuracy.BestForNavigation, 
+                    timeInterval: 60000, 
+                    foregroundService: {
+                        notificationTitle: "Tracking your location",
+                        notificationBody: "We're doing this to keep you safe!"
+                    }
+                });
+            }
         }
-        this.setState({address: address}, () => {
-            this.setState({homeLocation: homeCoords}, () => {
-                const userLocationString = Object.values(this.state.userLocation).join(","); 
-                var homeLocationString = Object.values(this.state.homeLocation).join(","); 
-                this.mapDirections(userLocationString, homeLocationString); 
-            });
-        });
+        catch (error) {
+            Alert.alert("Error", error.message); 
+            navigation.goBack(); 
+            return; 
+        }
     }
 
     render() {
