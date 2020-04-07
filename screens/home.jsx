@@ -48,7 +48,8 @@ class GetHome extends Component {
         coordinates: [], 
         userLocation : null, 
         homeLocation: null, 
-        address: null
+        address: null, 
+        listenerAdded: false
     };
 
     constructor() {
@@ -61,6 +62,7 @@ class GetHome extends Component {
 
     navigateHome = async() => {
         const {navigation} = this.props; 
+        const {listenerAdded} = this.state; 
         const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
         if(!alreadyTracking) {
             //begin location tracking every minute
@@ -90,16 +92,19 @@ class GetHome extends Component {
                 }
             }
             await Notifications.presentLocalNotificationAsync(trackNotification); 
-            Notifications.addListener(async(data) => {
+            const stopTrackingListener = Notifications.addListener(async(data) => {
                 console.log(data); 
                 const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
                 if ((data.data.actionId === "stopTracking" && data.origin === "selected") && alreadyTracking) {
                     await Location.stopLocationUpdatesAsync("trackLocation");
-                    Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
-                    navigation.navigate("Main Menu"); 
+                    await Notifications.deleteCategoryAsync("stopTracking"); 
                     counter = 0; 
                     distanceTravelled = 0; 
                     warningShowed = false; 
+                    Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
+                    navigation.navigate("Main Menu"); 
+                    //prevent duplicate listeners
+                    stopTrackingListener.remove(); 
                 }
             }); 
         }
@@ -237,19 +242,17 @@ class GetHome extends Component {
                 <View style={styles.container}>
                     <MapView style={styles.mapStyle}
                             region={{
-                                latitude: userLocation!=null ? userLocation.latitude : 37.78825,
-                                longitude: userLocation!=null ? userLocation.longitude : -122.4234,
-                                latitudeDelta: userLocation!=null ? 0.01 : 15, 
-                                longitudeDelta: userLocation!=null ? 0.01 : 15
+                                latitude: userLocation.latitude,
+                                longitude: userLocation.longitude,
+                                latitudeDelta: 0.01, 
+                                longitudeDelta: 0.01
                             }}>
-                        {(userLocation) && (
-                            <MapView.Marker coordinate={userLocation}>
-                            </MapView.Marker>
-                        )}
-                        {(homeLocation) && (
-                            <MapView.Marker coordinate={homeLocation}>
-                            </MapView.Marker>
-                        )}
+                        <MapView.Marker coordinate={userLocation}>
+                        </MapView.Marker>
+                    
+                        <MapView.Marker coordinate={homeLocation}>
+                        </MapView.Marker>
+
                         {this.state.coordinates.map((coords, index) => (
                             <MapView.Polyline key={index}
                                             index={index}
@@ -259,13 +262,11 @@ class GetHome extends Component {
                         ))}
                     </MapView>
                 </View>
-                {userLocation && (
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.navigateHome} >
-                            <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}     
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.navigateHome} >
+                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
+                    </TouchableOpacity>
+                </View>     
             </React.Fragment>);
     }
 }

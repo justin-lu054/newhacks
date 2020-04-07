@@ -156,32 +156,26 @@ class Food extends Component {
         return (
             <React.Fragment>
                 <View style={styles.container}>
-                    {userLocation && (
-                        <TouchableOpacity title="Home" onPress={this.handleGetDirections}
-                        style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
-                            <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium', marginLeft: 15, marginRight: 10}}>
-                                {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
+                    <TouchableOpacity title="Home" onPress={this.handleGetDirections}
+                    style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
+                        <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium', marginLeft: 15, marginRight: 10}}>
+                            {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
+                        </Text>
+                    </TouchableOpacity>
                     <MapView style={styles.mapStyle}
                         region={{
-                            latitude: userLocation != null ? userLocation.latitude : 37.78825,
-                            longitude: userLocation != null ? userLocation.longitude : -122.4234,
+                            latitude: userLocation.latitude,
+                            longitude: userLocation.longitude,
                             latitudeDelta: 0.01,
                             longitudeDelta: 0.01
                         }}>
-                        {userLocation && (
-                            <MapView.Marker coordinate={userLocation}>
-                            </MapView.Marker>
-                        )}
-                        {this.state.foodLocation && (
-                            <MapView.Marker coordinate={{
-                                latitude: this.state.foodLocation.latitude,
-                                longitude: this.state.foodLocation.longitude
+                        <MapView.Marker coordinate={userLocation}>
+                        </MapView.Marker>
+                        <MapView.Marker coordinate={{
+                            latitude: this.state.foodLocation.latitude,
+                            longitude: this.state.foodLocation.longitude
                             }}>
-                            </MapView.Marker>
-                        )}
+                        </MapView.Marker>
                         {this.state.coordinates.map((coords, index) => (
                             <MapView.Polyline key={index}
                                 index={index}
@@ -191,13 +185,11 @@ class Food extends Component {
                         ))}
                     </MapView>
                 </View>
-                {userLocation && (
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
-                            <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
+                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
+                    </TouchableOpacity>
+                </View>
             </React.Fragment>
         );
     }
