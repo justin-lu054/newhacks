@@ -54,12 +54,55 @@ class GetHome extends Component {
     constructor() {
         super(); 
         this.mapDirections = this.mapDirections.bind(this); 
-        this.handleGetDirections = this.handleGetDirections.bind(this); 
+        this.navigateHome = this.navigateHome.bind(this); 
         this.getLocationAsync = this.getLocationAsync.bind(this); 
         this.componentDidMount = this.componentDidMount.bind(this);
     }
 
-    handleGetDirections = () => {
+    navigateHome = async() => {
+        const {navigation} = this.props; 
+        const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+        if(!alreadyTracking) {
+            //begin location tracking every minute
+            console.log("Beginning tracking..."); 
+            await Location.startLocationUpdatesAsync("trackLocation", {
+                accuracy: Location.Accuracy.BestForNavigation, 
+                timeInterval: 60000, 
+                foregroundService: {
+                    notificationTitle: "Tracking your location",
+                    notificationBody: "We're doing this to keep you safe!", 
+                }
+            });
+            //create a sticky notification category for killing location tracking services
+            await Notifications.createCategoryAsync("stopTracking", 
+                                                    [{actionId: "stopTracking", 
+                                                    buttonTitle: "Stop Tracking"}]);
+            const trackNotification = {
+                title: "Cancel location tracking",
+                body: "To cancel location tracking at any time, simply hit the stop button below!",
+                categoryId: "stopTracking",
+                data: {"actionId": "stopTracking"}, 
+                ios: {
+                    sound: true
+                }, 
+                android: {
+                    sticky: true
+                }
+            }
+            await Notifications.presentLocalNotificationAsync(trackNotification); 
+            Notifications.addListener(async(data) => {
+                console.log(data); 
+                const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+                if ((data.data.actionId === "stopTracking" && data.origin === "selected") && alreadyTracking) {
+                    await Location.stopLocationUpdatesAsync("trackLocation");
+                    Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
+                    navigation.navigate("Main Menu"); 
+                    counter = 0; 
+                    distanceTravelled = 0; 
+                    warningShowed = false; 
+                }
+            }); 
+        }
         const data = {
             source: {
                 latitude: this.state.userLocation.latitude, 
@@ -168,45 +211,6 @@ class GetHome extends Component {
             await this.mapDirections(userLocationString, homeLocationString); 
             this.setState({address: address}); 
             this.setState({homeLocation: homeCoords}); 
-
-            const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
-            if(!alreadyTracking) {
-                //begin location tracking every minute
-                console.log("Beginning tracking..."); 
-                await Location.startLocationUpdatesAsync("trackLocation", {
-                    accuracy: Location.Accuracy.BestForNavigation, 
-                    timeInterval: 60000, 
-                    foregroundService: {
-                        notificationTitle: "Tracking your location",
-                        notificationBody: "We're doing this to keep you safe!", 
-                    }
-                });
-                //create a sticky notification category for killing location tracking services
-                await Notifications.createCategoryAsync("stopTracking", 
-                                                        [{actionId: "stopTracking", 
-                                                        buttonTitle: "Stop Tracking"}]);
-                const trackNotification = {
-                    title: "Cancel location tracking",
-                    body: "To cancel location tracking at any time, simply hit the stop button below!",
-                    categoryId: "stopTracking", 
-                    ios: {
-                        sound: true
-                    }, 
-                    android: {
-                        sticky: true
-                    }
-                }
-                await Notifications.presentLocalNotificationAsync(trackNotification); 
-                Notifications.addListener(async(data) => {
-                    const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
-                    if ((data.actionId === "stopTracking") && alreadyTracking) {
-                        await Location.stopLocationUpdatesAsync("trackLocation");
-                        Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
-                        navigation.navigate("Main Menu"); 
-                    }
-                    
-                }); 
-            }
         }
         catch (error) {
             Alert.alert("Error", error.message); 
@@ -257,7 +261,7 @@ class GetHome extends Component {
                 </View>
                 {userLocation && (
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
+                        <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.navigateHome} >
                             <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
                         </TouchableOpacity>
                     </View>
@@ -282,11 +286,6 @@ async function getHomeCoords(address){
         })
     })
 }
-
-
-
-
-
 
 //trackers for taskmanager
 var distanceTravelled = 0; 
