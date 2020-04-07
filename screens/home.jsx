@@ -178,9 +178,34 @@ class GetHome extends Component {
                     timeInterval: 60000, 
                     foregroundService: {
                         notificationTitle: "Tracking your location",
-                        notificationBody: "We're doing this to keep you safe!"
+                        notificationBody: "We're doing this to keep you safe!", 
                     }
                 });
+                //create a sticky notification category for killing location tracking services
+                await Notifications.createCategoryAsync("stopTracking", 
+                                                        [{actionId: "stopTracking", 
+                                                        buttonTitle: "Stop Tracking"}]);
+                const trackNotification = {
+                    title: "Cancel location tracking",
+                    body: "To cancel location tracking at any time, simply hit the stop button below!",
+                    categoryId: "stopTracking", 
+                    ios: {
+                        sound: true
+                    }, 
+                    android: {
+                        sticky: true
+                    }
+                }
+                await Notifications.presentLocalNotificationAsync(trackNotification); 
+                Notifications.addListener(async(data) => {
+                    const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+                    if ((data.actionId === "stopTracking") && alreadyTracking) {
+                        await Location.stopLocationUpdatesAsync("trackLocation");
+                        Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
+                        navigation.navigate("Main Menu"); 
+                    }
+                    
+                }); 
             }
         }
         catch (error) {
@@ -258,6 +283,11 @@ async function getHomeCoords(address){
     })
 }
 
+
+
+
+
+
 //trackers for taskmanager
 var distanceTravelled = 0; 
 var counter = 0; 
@@ -305,7 +335,6 @@ TaskManager.defineTask("trackLocation", async ({data, error}) => {
                 counter = 0; 
                 distanceTravelled = 0; 
                 warningShowed = false; 
-                //Notifications.presentLocalNotificationAsync(safeNotification).then(() => Location.stopLocationUpdatesAsync("trackLocation")); 
             } 
         }
         
