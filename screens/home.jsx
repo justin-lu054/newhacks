@@ -101,6 +101,7 @@ class GetHome extends Component {
                     counter = 0; 
                     distanceTravelled = 0; 
                     warningShowed = false; 
+                    locationHistory = []; 
                     Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
                     navigation.navigate("Main Menu"); 
                     //prevent duplicate listeners
