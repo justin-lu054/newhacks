@@ -67,11 +67,8 @@ export default class App extends Component {
     }
 
     async componentDidMount() {
-        //if the location tracking task is still persistent.... remove it
-        const isLocationTracking = await TaskManager.isTaskRegisteredAsync("trackLocation");
-        if (isLocationTracking) {
-            await TaskManager.unregisterAllTasksAsync(); 
-        }
+        //remove any persisting tasks
+        await TaskManager.unregisterAllTasksAsync(); 
     }
 
     render() {
