@@ -48,8 +48,7 @@ class GetHome extends Component {
         coordinates: [], 
         userLocation : null, 
         homeLocation: null, 
-        address: null, 
-        listenerAdded: false
+        address: null
     };
 
     constructor() {
@@ -62,7 +61,6 @@ class GetHome extends Component {
 
     navigateHome = async() => {
         const {navigation} = this.props; 
-        const {listenerAdded} = this.state; 
         const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
         if(!alreadyTracking) {
             //begin location tracking every minute
@@ -98,6 +96,8 @@ class GetHome extends Component {
                 if ((data.data.actionId === "stopTracking" && data.origin === "selected") && alreadyTracking) {
                     await Location.stopLocationUpdatesAsync("trackLocation");
                     await Notifications.deleteCategoryAsync("stopTracking"); 
+                    //clear all notifications
+                    await Notifications.dismissAllNotificationsAsync(); 
                     counter = 0; 
                     distanceTravelled = 0; 
                     warningShowed = false; 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppLoading } from 'expo';
+import { AppLoading, Notifications } from 'expo';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import MainMenu from './screens/mainmenu'
@@ -28,7 +28,6 @@ export default class App extends Component {
         screen: "main",
         isLoadingComplete: false
     };
-    onComponentMount() { }
 
     getHeader = () => {
         return <Header>placement='right'</Header>;
@@ -69,6 +68,9 @@ export default class App extends Component {
     async componentDidMount() {
         //remove any persisting tasks
         await TaskManager.unregisterAllTasksAsync(); 
+        //clear all notifications persisting
+        await Notifications.dismissAllNotificationsAsync(); 
+
     }
 
     render() {
