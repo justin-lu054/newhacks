@@ -3,7 +3,6 @@
     "name": "Hammrd",
     "slug": "hammrd",
     "privacy": "public",
-    "sdkVersion": "36.0.0",
     "platforms": [
       "ios",
       "android",
@@ -36,7 +35,7 @@
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION", 
+        "ACCESS_FINE_LOCATION",
         "WAKE_LOCK"
       ],
       "icon": "assets/appicon.png"
