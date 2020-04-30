@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Dimensions, TextInput, Keyboard, AsyncStorage, KeyboardAvoidingView, TouchableHighlight, ScrollView, Alert} from 'react-native';
+import * as TaskManager from 'expo-task-manager';
 import apikeys from '../apikeys.json';
 import _ from "lodash";
 
@@ -74,6 +75,13 @@ class Settings extends Component {
         const validPhoneNumber = new RegExp(/^\+1[2-9]\d{9}$/);
         if (!(validPhoneNumber.test(yourcontact) && validPhoneNumber.test(contact))) {
             Alert.alert("Invalid phone number", "Please enter your phone number in the format +1xxxxxxxxxx. Only North American numbers are supported"); 
+            return; 
+        }
+
+        //validate that there isn't an instance of a location tracking task running
+        const taskRunning = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
+        if (taskRunning) {
+            Alert.alert("Error", "You cannot modify settings when a location tracking task is running. Please cancel the location tracking task first."); 
             return; 
         }
 
