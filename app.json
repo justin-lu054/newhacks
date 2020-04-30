@@ -44,5 +44,17 @@
     "entryPoint": "node_modules/expo/AppEntry.js"
   },
   "displayName": "Hammrd",
-  "name": "Hammrd"
+  "name": "Hammrd", 
+  "hooks": {
+    "postPublish": [
+      {
+        "file": "sentry-expo/upload-sourcemaps",
+        "config": {
+          "organization": "justin-lu", 
+          "project": "hammrd", 
+          "authToken": ""
+        }
+      }
+    ]
+  }
 }

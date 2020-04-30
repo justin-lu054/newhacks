@@ -11,6 +11,17 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as TaskManager from 'expo-task-manager';
 import Settings from './screens/settings';
+import * as Sentry from 'sentry-expo';
+import apikeys from './apikeys.json';
+
+
+Sentry.init({
+    dsn: apikeys.SENTRY_DSN, 
+    enableInExpoDevelopment: true, 
+    debug: true
+});
+
+
 const Stack = createStackNavigator();
 
 const styles = StyleSheet.create({
