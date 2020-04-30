@@ -401,24 +401,18 @@ class GetHome extends Component {
         var homeCoords = ""; 
         try {
             homeCoords = await getHomeCoords(address); 
-        }
-        catch(error) {
-            Alert.alert("Error", error.message); 
-            navigation.goBack(); 
-            return; 
-        }
 
-        const userLocationString = Object.values(this.state.userLocation); 
-        const homeLocationString = Object.values(homeCoords); 
-        try {
+            const userLocationString = Object.values(this.state.userLocation); 
+            const homeLocationString = Object.values(homeCoords); 
+
             await this.mapDirections(userLocationString, homeLocationString); 
             this.setState({address: address}); 
             this.setState({homeLocation: homeCoords}); 
-        }
+        }   
         catch (error) {
             Alert.alert("Error", error.message); 
             navigation.goBack(); 
-            return; 
+            return;
         }
     }
 
