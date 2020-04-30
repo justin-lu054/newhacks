@@ -108,6 +108,10 @@ async function getHomeCoords(address){
 }
 
 async function watchMovement(newLocation) {
+    //in case the user remounts the application before the first run of the task is successfully run
+    if (!locationTaskTrackers) {
+        return; 
+    }
     const currentTime = new Date(); 
     locationTaskTrackers.addLocationHistory([newLocation[0].coords.latitude, newLocation[0].coords.longitude]); 
     locationTaskTrackers.addTimeHistory(currentTime.getTime()); 
