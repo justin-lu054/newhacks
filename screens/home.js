@@ -49,6 +49,7 @@ class LocationTaskTrackers {
         this.locationHistory = []; 
         this.timeHistory = []; 
         this.timeElapsed = 0;
+        this.addresscoords = {};
         this.warningShowed = false; 
     }
 
@@ -84,12 +85,16 @@ class LocationTaskTrackers {
         this.warningShowed = true; 
     }
 
+    setAddressCoords(addresscoords) {
+        this.addresscoords = addresscoords; 
+    }
+
     resetTrackers() {
         this.distanceTravelled = 0; 
         this.counter = 0; 
-        this.timeElapsed = 0; 
-        this.timeHistory = 0; 
         this.locationHistory = []; 
+        this.timeHistory = []; 
+        this.timeElapsed = 0;
         this.warningShowed = false; 
     }
 }
@@ -109,6 +114,7 @@ async function getHomeCoords(address){
 
 async function watchMovement(newLocation) {
     //in case the user remounts the application before the first run of the task is successfully run
+    console.log(locationTaskTrackers); 
     if (!locationTaskTrackers) {
         return; 
     }
@@ -137,8 +143,7 @@ async function watchMovement(newLocation) {
         locationTaskTrackers.addTimeElapsed(elapsedTime); 
         locationTaskTrackers.popTimeHistory(); 
 
-        const address = await AsyncStorage.getItem("address"); 
-        const addressCoordsObj = await getHomeCoords(address); 
+        const addressCoordsObj = locationTaskTrackers.addresscoords; 
         const addressCoords = [addressCoordsObj.latitude, addressCoordsObj.longitude]; 
         var distanceFromHome = haversine(locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 1], addressCoords, {
             format: "[lat,lon]"
@@ -401,7 +406,8 @@ class GetHome extends Component {
         var homeCoords = ""; 
         try {
             homeCoords = await getHomeCoords(address); 
-
+            //update location task trackers
+            locationTaskTrackers.setAddressCoords(homeCoords); 
             const userLocationString = Object.values(this.state.userLocation); 
             const homeLocationString = Object.values(homeCoords); 
 
