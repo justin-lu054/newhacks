@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { Alert, View, StyleSheet, Text, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import * as Location from 'expo-location';
@@ -97,7 +97,7 @@ class Food extends Component {
             return coords;
         }
         catch (error) {
-            alert(error);
+            Alert.alert("Error", error);
             return error;
         }
     }
@@ -127,7 +127,7 @@ class Food extends Component {
     async componentDidMount() {
         var { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== "granted") {
-            alert("Permission to access location denied.");
+            Alert.alert("Error", "Permission to access location denied.");
             return; 
         }
         await this.getLocationAsync(); 
