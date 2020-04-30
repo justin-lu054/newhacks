@@ -47,6 +47,8 @@ class LocationTaskTrackers {
         this.distanceTravelled = 0; 
         this.counter = 0; 
         this.locationHistory = []; 
+        this.timeHistory = []; 
+        this.timeElapsed = 0;
         this.warningShowed = false; 
     }
 
@@ -54,8 +56,20 @@ class LocationTaskTrackers {
         this.distanceTravelled += distance; 
     }
     
+    addTimeElapsed(time) {
+        this.timeElapsed += time;
+    }
+
     incrementCounter() {
         this.counter++; 
+    }
+
+    addTimeHistory(time) {
+        this.timeHistory.push(time); 
+    }
+
+    popTimeHistory() {
+        this.timeHistory.shift(); 
     }
     
     addLocationHistory(location) {
@@ -73,6 +87,8 @@ class LocationTaskTrackers {
     resetTrackers() {
         this.distanceTravelled = 0; 
         this.counter = 0; 
+        this.timeElapsed = 0; 
+        this.timeHistory = 0; 
         this.locationHistory = []; 
         this.warningShowed = false; 
     }
@@ -98,22 +114,35 @@ async function getHomeCoords(address){
 }
 
 async function watchMovement(newLocation) {
-    var { distanceTravelled, locationHistory, counter, warningShowed } = locationTaskTrackers; 
-    console.log("counter", counter); 
+    const currentTime = new Date(); 
     locationTaskTrackers.addLocationHistory([newLocation[0].coords.latitude, newLocation[0].coords.longitude]); 
+    locationTaskTrackers.addTimeHistory(currentTime.getTime()); 
 
-    if (locationHistory.length > 1) {
-        var newDistance = haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
+    console.log("Time of execution: " + currentTime.getHours().toString() + " " + currentTime.getMinutes().toString()); 
+    console.log("counter", locationTaskTrackers.counter); 
+
+    //avoid destructuring due to modification of class properties
+    
+    if (locationTaskTrackers.locationHistory.length > 1) {
+        var newDistance = haversine(locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 1], 
+            locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 2], 
+            {
             format: "[lat,lon]"
-        });
+            }
+        );
+
+        var elapsedTime = locationTaskTrackers.timeHistory[locationTaskTrackers.timeHistory.length - 1] - locationTaskTrackers.timeHistory[locationTaskTrackers.timeHistory.length - 2]; 
 
         locationTaskTrackers.addDistanceTravelled(newDistance); 
         locationTaskTrackers.popLocationHistory(); 
-        
+
+        locationTaskTrackers.addTimeElapsed(elapsedTime); 
+        locationTaskTrackers.popTimeHistory(); 
+
         const address = await AsyncStorage.getItem("address"); 
         const addressCoordsObj = await getHomeCoords(address); 
         const addressCoords = [addressCoordsObj.latitude, addressCoordsObj.longitude]; 
-        var distanceFromHome = haversine(locationHistory[locationHistory.length - 1], addressCoords, {
+        var distanceFromHome = haversine(locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 1], addressCoords, {
             format: "[lat,lon]"
         });
         if (distanceFromHome < 0.2) {
@@ -133,8 +162,9 @@ async function watchMovement(newLocation) {
             locationTaskTrackers.resetTrackers(); 
         } 
     }
-    //10 minutes without significant movement
-    if (counter === 1 && distanceTravelled < 0.1 && !warningShowed) {
+    //~10 minutes without significant movement (note there are inaccuracies of ~1 minute due to backgroundfetch limitations)
+    //careful dereferencing as the value may not be updated...
+    if (locationTaskTrackers.timeElapsed > (10 * 60 * 1000) && locationTaskTrackers.distanceTravelled < 0.1 && !locationTaskTrackers.warningShowed) {
         console.log("Inactivity detected"); 
         const warnNotification = {
             title: "Are you alright?", 
@@ -149,9 +179,9 @@ async function watchMovement(newLocation) {
         await Notifications.presentLocalNotificationAsync(warnNotification);
         locationTaskTrackers.setWarningShowed(); 
     }
-    //20 minutes without significant movement
-    if (counter === 2) {
-        if (distanceTravelled < 0.1) {
+    //~25 minutes without significant movement
+    if (locationTaskTrackers.timeElapsed > (25 * 60 * 1000)) {
+        if (locationTaskTrackers.distanceTravelled < 0.1) {
             console.log("Sending text message...."); 
             const alertNotification = {
                 title: "Don't Worry", 
@@ -173,7 +203,8 @@ async function watchMovement(newLocation) {
         //reset counters
         locationTaskTrackers.resetTrackers(); 
     }
-    console.log(distanceTravelled);
+    console.log(locationTaskTrackers.distanceTravelled);
+    console.log(locationTaskTrackers.timeElapsed); 
     locationTaskTrackers.incrementCounter(); 
 }
 
@@ -201,9 +232,6 @@ async function sendSMS(contact, yourcontact, yourname, name) {
 
 //foreground/background task to track user distance travelled
 TaskManager.defineTask("trackLocation", async ({data, error}) => {
-    const currentTime = new Date(); 
-    console.log("Time of execution: " + currentTime.getHours().toString() + " " + currentTime.getMinutes().toString()); 
-
     if (error) {
         console.log("error", error); 
         return; 
