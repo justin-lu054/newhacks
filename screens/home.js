@@ -9,7 +9,6 @@ import apikeys from '../apikeys.json';
 import * as TaskManager from 'expo-task-manager'; 
 import haversine from 'haversine';
 import { Notifications } from 'expo';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
     container: {
@@ -42,6 +41,178 @@ const styles = StyleSheet.create({
     }
 });
 
+//object for trackers used by task manager
+class LocationTaskTrackers {
+    constructor() {
+        this.distanceTravelled = 0; 
+        this.counter = 0; 
+        this.locationHistory = []; 
+        this.warningShowed = false; 
+    }
+
+    addDistanceTravelled(distance) {
+        this.distanceTravelled += distance; 
+    }
+    
+    incrementCounter() {
+        this.counter++; 
+    }
+    
+    addLocationHistory(location) {
+        this.locationHistory.push(location); 
+    }
+
+    popLocationHistory() {
+        this.locationHistory.shift(); 
+    }
+
+    setWarningShowed() {
+        this.warningShowed = true; 
+    }
+
+    resetTrackers() {
+        this.distanceTravelled = 0; 
+        this.counter = 0; 
+        this.locationHistory = []; 
+        this.warningShowed = false; 
+    }
+}
+
+//global instance of trackers
+var locationTaskTrackers = new LocationTaskTrackers(); 
+
+async function getHomeCoords(address){
+    return new Promise((resolve, reject) => {
+        fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
+        .then(res => res.json())
+        .then(json => {
+            //if an invalid home address is entered
+            if (json.candidates.length === 0) {
+                reject("No results found. Please provide a valid address");
+                return;
+            }
+            var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
+            resolve(coordinates); 
+        })
+    })
+}
+
+async function watchMovement(newLocation) {
+    var { distanceTravelled, locationHistory, counter, warningShowed } = locationTaskTrackers; 
+    console.log("counter", counter); 
+    locationTaskTrackers.addLocationHistory([newLocation[0].coords.latitude, newLocation[0].coords.longitude]); 
+
+    if (locationHistory.length > 1) {
+        var newDistance = haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
+            format: "[lat,lon]"
+        });
+
+        locationTaskTrackers.addDistanceTravelled(newDistance); 
+        locationTaskTrackers.popLocationHistory(); 
+        
+        const address = await AsyncStorage.getItem("address"); 
+        const addressCoordsObj = await getHomeCoords(address); 
+        const addressCoords = [addressCoordsObj.latitude, addressCoordsObj.longitude]; 
+        var distanceFromHome = haversine(locationHistory[locationHistory.length - 1], addressCoords, {
+            format: "[lat,lon]"
+        });
+        if (distanceFromHome < 0.2) {
+            const safeNotification = {
+                title: "Welcome home!",
+                body: "Glad to see that you got home safe. We will stop tracking your location",
+                ios: {
+                    sound: true
+                }, 
+                android: {
+                    channelId: "notifications"
+                }
+            }
+            //kill the task and reset counters
+            await Notifications.presentLocalNotificationAsync(safeNotification);
+            await Location.stopLocationUpdatesAsync("trackLocation"); 
+            locationTaskTrackers.resetTrackers(); 
+        } 
+    }
+    //10 minutes without significant movement
+    if (counter === 1 && distanceTravelled < 0.1 && !warningShowed) {
+        console.log("Inactivity detected"); 
+        const warnNotification = {
+            title: "Are you alright?", 
+            body: "We have not detected movement in a while. We will reach out to your emergency contact soon.", 
+            ios: {
+                sound: true
+            },
+            android: {
+                channelId: "notifications"
+            }
+        }
+        await Notifications.presentLocalNotificationAsync(warnNotification);
+        locationTaskTrackers.setWarningShowed(); 
+    }
+    //20 minutes without significant movement
+    if (counter === 2) {
+        if (distanceTravelled < 0.1) {
+            console.log("Sending text message...."); 
+            const alertNotification = {
+                title: "Don't Worry", 
+                body: "We are reaching out to your emergency contact with your location right now", 
+                ios: {
+                    sound: true
+                },
+                android: {
+                    channelId: "notifications"
+                }
+            }
+            await Notifications.presentLocalNotificationAsync(alertNotification);
+            const contact = await AsyncStorage.getItem("contact"); 
+            const yourcontact = await AsyncStorage.getItem("yourcontact"); 
+            const yourname = await AsyncStorage.getItem("yourname"); 
+            const name = await AsyncStorage.getItem("name"); 
+            sendSMS(contact, yourcontact, yourname, name);
+        }
+        //reset counters
+        locationTaskTrackers.resetTrackers(); 
+    }
+    console.log(distanceTravelled);
+    locationTaskTrackers.incrementCounter(); 
+}
+
+async function sendSMS(contact, yourcontact, yourname, name) {
+    const {locationHistory} = locationTaskTrackers; 
+    const options = {
+        method : "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }, 
+        body: JSON.stringify({
+            content: `Hi ${name}, ${yourname} has been outside and motionless for over 20 minutes\
+                    at ${locationHistory[locationHistory.length - 1]}. You can contact them at ${yourcontact}`, 
+            to: contact
+        })
+    };
+    fetch("https://hammrdtwilioservice.herokuapp.com/text", options)
+    .then(() => {
+        console.log("Message sent."); 
+    })
+    .catch(err => console.log(err)); 
+}
+
+//change this to check every 15 minutes -> this will usually allow for background execution
+
+//foreground/background task to track user distance travelled
+TaskManager.defineTask("trackLocation", async ({data, error}) => {
+    const currentTime = new Date(); 
+    console.log("Time of execution: " + currentTime.getHours().toString() + " " + currentTime.getMinutes().toString()); 
+
+    if (error) {
+        console.log("error", error); 
+        return; 
+    }
+    if (data) {
+        const {locations} = data; 
+        watchMovement(locations); 
+    }
+}); 
 
 class GetHome extends Component {
     state = {
@@ -59,7 +230,7 @@ class GetHome extends Component {
         this.componentDidMount = this.componentDidMount.bind(this);
     }
 
-    navigateHome = async() => {
+    beginLocationTracking = async() => {
         const {navigation} = this.props; 
         const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
         if(!alreadyTracking) {
@@ -67,7 +238,7 @@ class GetHome extends Component {
             console.log("Beginning tracking..."); 
             await Location.startLocationUpdatesAsync("trackLocation", {
                 accuracy: Location.Accuracy.BestForNavigation, 
-                timeInterval: 60000, 
+                timeInterval: 15 * 60 * 1000, 
                 foregroundService: {
                     notificationTitle: "Tracking your location",
                     notificationBody: "We're doing this to keep you safe!", 
@@ -91,17 +262,13 @@ class GetHome extends Component {
             }
             await Notifications.presentLocalNotificationAsync(trackNotification); 
             const stopTrackingListener = Notifications.addListener(async(data) => {
-                console.log(data); 
                 const alreadyTracking = await TaskManager.isTaskRegisteredAsync("trackLocation"); 
                 if ((data.data.actionId === "stopTracking" && data.origin === "selected") && alreadyTracking) {
                     await Location.stopLocationUpdatesAsync("trackLocation");
                     await Notifications.deleteCategoryAsync("stopTracking"); 
                     //clear all notifications
                     await Notifications.dismissAllNotificationsAsync(); 
-                    counter = 0; 
-                    distanceTravelled = 0; 
-                    warningShowed = false; 
-                    locationHistory = []; 
+                    locationTaskTrackers.resetTrackers(); 
                     Alert.alert("Stopped location tracking.", "We've stopped location tracking services for you."); 
                     navigation.navigate("Main Menu"); 
                     //prevent duplicate listeners
@@ -109,6 +276,10 @@ class GetHome extends Component {
                 }
             }); 
         }
+    }
+
+    navigateHome = async() => {
+        this.beginLocationTracking(); 
         const data = {
             source: {
                 latitude: this.state.userLocation.latitude, 
@@ -271,136 +442,5 @@ class GetHome extends Component {
             </React.Fragment>);
     }
 }
-
-async function getHomeCoords(address){
-    return new Promise((resolve, reject) => {
-        fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
-        .then(res => res.json())
-        .then(json => {
-            //if an invalid home address is entered
-            if (json.candidates.length === 0) {
-                reject("No results found. Please provide a valid address");
-                return;
-            }
-
-            var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
-            resolve(coordinates); 
-        })
-    })
-}
-
-//trackers for taskmanager
-var distanceTravelled = 0; 
-var counter = 0; 
-var locationHistory = []; 
-var warningShowed = false; 
-
-//foreground/background task to track user distance travelled
-TaskManager.defineTask("trackLocation", async ({data, error}) => {
-    if (error) {
-        console.log("error", error); 
-        return; 
-    }
-    if (data) {
-        const {locations} = data; 
-        counter++; 
-        console.log("counter", counter); 
-        locationHistory.push([locations[0].coords.latitude, locations[0].coords.longitude]); 
-        
-        if (locationHistory.length > 1) {
-            distanceTravelled += haversine(locationHistory[locationHistory.length - 1], locationHistory[locationHistory.length - 2], {
-                format: "[lat,lon]"
-            });
-            locationHistory.shift();
-
-            const address = await AsyncStorage.getItem("address"); 
-            const addressCoordsObj = await getHomeCoords(address); 
-            const addressCoords = [addressCoordsObj.latitude, addressCoordsObj.longitude]; 
-            var distanceFromHome = haversine(locationHistory[locationHistory.length - 1], addressCoords, {
-                format: "[lat,lon]"
-            });
-            if (distanceFromHome < 0.2) {
-                const safeNotification = {
-                    title: "Welcome home!",
-                    body: "Glad to see that you got home safe. We will stop tracking your location",
-                    ios: {
-                        sound: true
-                    }, 
-                    android: {
-                        channelId: "notifications"
-                    }
-                }
-                //kill the task and reset counters
-                await Notifications.presentLocalNotificationAsync(safeNotification);
-                await Location.stopLocationUpdatesAsync("trackLocation"); 
-                counter = 0; 
-                distanceTravelled = 0; 
-                warningShowed = false; 
-            } 
-        }
-        
-        //10 minutes without significant movement
-        if (counter === 10 && distanceTravelled < 0.1 && !warningShowed) {
-            console.log("Inactivity detected"); 
-            const warnNotification = {
-                title: "Are you alright?", 
-                body: "We have not detected movement in a while. We will reach out to your emergency contact soon.", 
-                ios: {
-                    sound: true
-                },
-                android: {
-                    channelId: "notifications"
-                }
-            }
-            Notifications.presentLocalNotificationAsync(warnNotification).then(() => warningShowed = true); 
-        }
-        //20 minutes without significant movement
-        if (counter === 20) {
-            if (distanceTravelled < 0.1) {
-                console.log("Sending text message...."); 
-                const contact = await AsyncStorage.getItem("contact"); 
-                const yourcontact = await AsyncStorage.getItem("yourcontact"); 
-                const yourname = await AsyncStorage.getItem("yourname"); 
-                const name = await AsyncStorage.getItem("name"); 
-    
-                const warnNotification = {
-                    title: "Don't Worry", 
-                    body: "We are reaching out to your emergency contact with your location right now", 
-                    ios: {
-                        sound: true
-                    },
-                    android: {
-                        channelId: "notifications"
-                    }
-                }
-                await Notifications.presentLocalNotificationAsync(warnNotification);
-                options = {
-                    method : "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }, 
-                    body: JSON.stringify({
-                        content: `Hi ${name}, ${yourname} has been outside and motionless for over 20 minutes\
-                                at ${locationHistory[locationHistory.length - 1]}. You can contact them at ${yourcontact}`, 
-                        to: contact
-                    })
-                };
-                fetch("https://hammrdtwilioservice.herokuapp.com/text", options)
-                .then(() => {
-                    console.log("Message sent."); 
-                })
-                .catch(err => console.log(err)); 
-            }
-            
-            //reset counters
-            counter = 0; 
-            distanceTravelled = 0; 
-            warningShowed = false; 
-            
-        }
-        console.log(distanceTravelled);
-    }
-}); 
-
 
 export default GetHome;
