@@ -98,19 +98,13 @@ class LocationTaskTrackers {
 var locationTaskTrackers = new LocationTaskTrackers(); 
 
 async function getHomeCoords(address){
-    return new Promise((resolve, reject) => {
-        fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&key=${apikeys.GOOGLE_MAPS_API_KEY}&input=${encodeURI(address)}&fields=geometry`)
-        .then(res => res.json())
-        .then(json => {
-            //if an invalid home address is entered
-            if (json.candidates.length === 0) {
-                reject("No results found. Please provide a valid address");
-                return;
-            }
-            var coordinates = {"latitude": json.candidates[0].geometry.location.lat, "longitude": json.candidates[0].geometry.location.lng}
-            resolve(coordinates); 
-        })
-    })
+    var result = await Location.geocodeAsync(address); 
+    //console.log(result);  
+    if (result.length === 0) {
+        const err = new Error("Invalid home address entered.");
+        return Promise.reject(err); 
+    }
+    return {"latitude": result[0].latitude, "longitude": result[0].longitude}; 
 }
 
 async function watchMovement(newLocation) {
@@ -122,7 +116,7 @@ async function watchMovement(newLocation) {
     console.log("counter", locationTaskTrackers.counter); 
 
     //avoid destructuring due to modification of class properties
-    
+
     if (locationTaskTrackers.locationHistory.length > 1) {
         var newDistance = haversine(locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 1], 
             locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 2], 
@@ -404,8 +398,8 @@ class GetHome extends Component {
         try {
             homeCoords = await getHomeCoords(address); 
         }
-        catch(err) {
-            Alert.alert("Error", err); 
+        catch(error) {
+            Alert.alert("Error", error.message); 
             navigation.goBack(); 
             return; 
         }
