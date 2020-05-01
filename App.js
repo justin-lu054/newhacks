@@ -6,7 +6,6 @@ import MainMenu from './screens/mainmenu'
 import GetHome from './screens/home';
 import Food from './screens/food';
 import { StyleSheet, Image, Text, View } from "react-native";
-import Header from "./header/Header";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as TaskManager from 'expo-task-manager';
@@ -38,10 +37,6 @@ export default class App extends Component {
     state = {
         screen: "main",
         isLoadingComplete: false
-    };
-
-    getHeader = () => {
-        return <Header>placement='right'</Header>;
     };
 
     // Async stands for an asychronous function, the time it takes to complete is unknown at runtime
