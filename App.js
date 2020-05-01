@@ -13,7 +13,7 @@ import Settings from './screens/settings';
 import * as Sentry from 'sentry-expo';
 import apikeys from './apikeys.json';
 
-
+//load sentry error logging service (in production apk builds)
 Sentry.init({
     dsn: apikeys.SENTRY_DSN, 
     enableInExpoDevelopment: true, 

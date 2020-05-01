@@ -87,9 +87,9 @@ class Settings extends Component {
 
         await AsyncStorage.setItem("yourname", yourname); 
         await AsyncStorage.setItem("yourcontact", yourcontact); 
-        await AsyncStorage.setItem("address", address); //.then(console.log("test")); 
-        await AsyncStorage.setItem("name", name); //.then(console.log("test2")); 
-        await AsyncStorage.setItem("contact", contact); //.then(console.log("test3")).then(alert("Information saved!")); 
+        await AsyncStorage.setItem("address", address);
+        await AsyncStorage.setItem("name", name); 
+        await AsyncStorage.setItem("contact", contact);
         Alert.alert("Success!", "Information saved!"); 
     }
 
@@ -103,7 +103,6 @@ class Settings extends Component {
     }
 
     onChangeAddress = async (address) => {
-        //this.setState({address: address}); 
         const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apikeys.GOOGLE_MAPS_API_KEY}&input={${address}}`;
         const result = await fetch(apiUrl); 
         const json = await result.json(); 
