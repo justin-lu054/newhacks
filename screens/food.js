@@ -93,7 +93,9 @@ class Food extends Component {
                 };
             });
             const newCoords = [...this.state.coordinates, coords];
-            this.setState({ coordinates: newCoords });
+            if (this.mounted) {
+                this.setState({ coordinates: newCoords });
+            }
             return coords;
         }
         catch (error) {
@@ -104,7 +106,9 @@ class Food extends Component {
 
     async getLocationAsync() {
         var location = await Location.getCurrentPositionAsync({});
-        this.setState({ userLocation: { "latitude": location.coords.latitude, "longitude": location.coords.longitude } });
+        if (this.mounted) {
+            this.setState({ userLocation: { "latitude": location.coords.latitude, "longitude": location.coords.longitude } });
+        } 
     }
 
     getNearestRestaurant(latitude, longitude) {
@@ -125,22 +129,32 @@ class Food extends Component {
     }
 
     async componentDidMount() {
+        this.mounted = true; 
         var { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== "granted") {
             Alert.alert("Error", "Permission to access location denied.");
             return; 
         }
         await this.getLocationAsync(); 
-        var userLocation = Object.values(this.state.userLocation).join(",");
-        var coordinates = await this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude); 
-        this.setState({foodLocation: coordinates}); 
-        var restaurantLocation = Object.values(coordinates).slice(0, 2).join(",");
-        this.mapDirections(userLocation, restaurantLocation); 
+        //in case the state property is not set due to unmounting
+        if (this.state.userLocation) {
+            var userLocation = Object.values(this.state.userLocation).join(",");
+            var coordinates = await this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude); 
+            if (this.mounted) {
+                this.setState({foodLocation: coordinates}); 
+            } 
+            var restaurantLocation = Object.values(coordinates).slice(0, 2).join(",");
+            this.mapDirections(userLocation, restaurantLocation); 
+        }
+        
+    }
+
+    componentWillUnmount() {
+        this.mounted = false; 
     }
 
     render() {
-        const { userLocation } = this.state;
-        const { foodLocation } = this.state;
+        const { userLocation, foodLocation } = this.state;
 
         //loading circle
         if (!(userLocation && foodLocation)) {

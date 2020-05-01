@@ -335,6 +335,7 @@ class GetHome extends Component {
     }
 
     mapDirections = async (startLoc, destinationLoc) => {
+
         let resp = await fetch(
             `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
         );
@@ -352,16 +353,21 @@ class GetHome extends Component {
             };
         });
         const newCoords = [...this.state.coordinates, coords];
-        this.setState({ coordinates: newCoords });
+        if (this.mounted) {
+            this.setState({ coordinates: newCoords });
+        }
         return coords; 
     }
 
     getLocationAsync = async () => {
         var location = await Location.getCurrentPositionAsync({}); 
-        this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
+        if (this.mounted) {
+            this.setState({userLocation: {"latitude": location.coords.latitude, "longitude": location.coords.longitude}}); 
+        }
     }
     
     async componentDidMount() {
+        this.mounted = true;
         //get permissions
         const { navigation } = this.props; 
         var { status } = await Permissions.askAsync(Permissions.LOCATION); 
@@ -401,25 +407,35 @@ class GetHome extends Component {
                 vibrate: [0, 500] 
             });
         }
-
-        await this.getLocationAsync(); 
-        var homeCoords = ""; 
+        
         try {
-            homeCoords = await getHomeCoords(address); 
+            await this.getLocationAsync(); 
+            var homeCoords = await getHomeCoords(address); 
             //update location task trackers
             locationTaskTrackers.setAddressCoords(homeCoords); 
-            const userLocationString = Object.values(this.state.userLocation); 
-            const homeLocationString = Object.values(homeCoords); 
 
-            await this.mapDirections(userLocationString, homeLocationString); 
-            this.setState({address: address}); 
-            this.setState({homeLocation: homeCoords}); 
+            //in case the state property was not set due to unmounting
+            if (this.state.userLocation) {
+                const userLocationString = Object.values(this.state.userLocation); 
+                const homeLocationString = Object.values(homeCoords); 
+
+                await this.mapDirections(userLocationString, homeLocationString);
+
+                if (this.mounted) {
+                    this.setState({address: address}); 
+                    this.setState({homeLocation: homeCoords}); 
+                }
+            }    
         }   
         catch (error) {
             Alert.alert("Error", error.message); 
             navigation.goBack(); 
             return;
         }
+    }
+
+    componentWillUnmount() {
+        this.mounted = false; 
     }
 
     render() {
