@@ -41,9 +41,18 @@ const styles = StyleSheet.create({
     }
 });
 
-//object for trackers used by task manager
+//singleton class for trackers used by task manager
 class LocationTaskTrackers {
+
+    //implement singleton pattern
+    static instance; 
+
     constructor() {
+        //ensure only one instance exists at a time
+        if (this.instance) {
+            return this.instance; 
+        }
+
         this.distanceTravelled = 0; 
         this.counter = 0; 
         this.locationHistory = []; 
@@ -51,6 +60,7 @@ class LocationTaskTrackers {
         this.timeElapsed = 0;
         this.addresscoords = {};
         this.warningShowed = false; 
+        this.instance = this; 
     }
 
     addDistanceTravelled(distance) {
