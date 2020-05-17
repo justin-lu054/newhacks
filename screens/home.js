@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, Dimensions, ActivityIndicator, TouchableOpacity, AsyncStorage, Platform, Alert } from 'react-native';
-import MapView from 'react-native-maps'; 
+import { AsyncStorage, Platform, Alert } from 'react-native';
 import Polyline from '@mapbox/polyline'; 
 import * as Location from 'expo-location'; 
 import * as Permissions from 'expo-permissions';
@@ -9,105 +8,8 @@ import apikeys from '../apikeys.json';
 import * as TaskManager from 'expo-task-manager'; 
 import haversine from 'haversine';
 import { Notifications } from 'expo';
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 2,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-
-    buttonStyle: {
-        height: 100,
-        width: '100%',
-        backgroundColor: '#c471f5',
-        justifyContent: 'center',
-        alignItems: 'center',
-        opacity: 0.75,
-        borderRadius: 30
-    },
-
-    mapStyle: {
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: "center"
-    },
-    loadingHorizontal: {
-        flexDirection: "row",
-        justifyContent: "center"
-    }
-});
-
-//singleton class for trackers used by task manager
-class LocationTaskTrackers {
-
-    //implement singleton pattern
-    static instance; 
-
-    constructor() {
-        //ensure only one instance exists at a time
-        if (this.instance) {
-            return this.instance; 
-        }
-
-        this.distanceTravelled = 0; 
-        this.counter = 0; 
-        this.locationHistory = []; 
-        this.timeHistory = []; 
-        this.timeElapsed = 0;
-        this.addresscoords = {};
-        this.warningShowed = false; 
-        this.instance = this; 
-    }
-
-    addDistanceTravelled(distance) {
-        this.distanceTravelled += distance; 
-    }
-    
-    addTimeElapsed(time) {
-        this.timeElapsed += time;
-    }
-
-    incrementCounter() {
-        this.counter++; 
-    }
-
-    addTimeHistory(time) {
-        this.timeHistory.push(time); 
-    }
-
-    popTimeHistory() {
-        this.timeHistory.shift(); 
-    }
-    
-    addLocationHistory(location) {
-        this.locationHistory.push(location); 
-    }
-
-    popLocationHistory() {
-        this.locationHistory.shift(); 
-    }
-
-    setWarningShowed() {
-        this.warningShowed = true; 
-    }
-
-    setAddressCoords(addresscoords) {
-        this.addresscoords = addresscoords; 
-    }
-
-    resetTrackers() {
-        this.distanceTravelled = 0; 
-        this.counter = 0; 
-        this.locationHistory = []; 
-        this.timeHistory = []; 
-        this.timeElapsed = 0;
-        this.warningShowed = false; 
-    }
-}
+import LocationTaskTrackers from '../resources/LocationTaskTracker'; 
+import MapPlot from '../resources/MapPlot'; 
 
 //global instance of trackers
 var locationTaskTrackers = new LocationTaskTrackers(); 
@@ -124,7 +26,6 @@ async function getHomeCoords(address){
 
 async function watchMovement(newLocation) {
     //in case the user remounts the application before the first run of the task is successfully run
-    console.log(locationTaskTrackers); 
     if (!locationTaskTrackers) {
         return; 
     }
@@ -136,7 +37,6 @@ async function watchMovement(newLocation) {
     console.log("counter", locationTaskTrackers.counter); 
 
     //avoid destructuring due to modification of class properties
-
     if (locationTaskTrackers.locationHistory.length > 1) {
         var newDistance = haversine(locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 1], 
             locationTaskTrackers.locationHistory[locationTaskTrackers.locationHistory.length - 2], 
@@ -241,7 +141,7 @@ async function sendSMS(contact, yourcontact, yourname, name) {
     .catch(err => console.log(err)); 
 }
 
-//change this to check every 15 minutes -> this will usually allow for background execution
+//change this to check every 15 minutes -> this will allow for background execution
 
 //foreground/background task to track user distance travelled
 TaskManager.defineTask("trackLocation", async ({data, error}) => {
@@ -346,17 +246,17 @@ class GetHome extends Component {
 
     mapDirections = async (startLoc, destinationLoc) => {
 
-        let resp = await fetch(
+        var resp = await fetch(
             `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${destinationLoc}&mode=walking&key=${apikeys.GOOGLE_MAPS_API_KEY}`
         );
-        let respJson = await resp.json();
+        var respJson = await resp.json();
         //there will be no coordinates in the route array if there is no existing route...
         if (respJson.routes.length === 0) {
             const err = new Error("No walking route found to this location!");
             return Promise.reject(err); 
         }
-        let points = Polyline.decode(respJson.routes[0].overview_polyline.points);
-        let coords = points.map((point, index) => {
+        var points = Polyline.decode(respJson.routes[0].overview_polyline.points);
+        var coords = points.map((point, index) => {
             return {
                 latitude: point[0],
                 longitude: point[1]
@@ -449,49 +349,15 @@ class GetHome extends Component {
     }
 
     render() {
-        const {userLocation, homeLocation} = this.state; 
-        
-        if (!(userLocation && homeLocation)) {
-            return (
-                <React.Fragment>
-                    <View style={[styles.loadingContainer, styles.loadingHorizontal]}>
-                        <ActivityIndicator size="large"></ActivityIndicator>
-                    </View>
-                </React.Fragment>
-            );
-        }
-        
-        return (
-            <React.Fragment>
-                <View style={styles.container}>
-                    <MapView style={styles.mapStyle}
-                            region={{
-                                latitude: userLocation.latitude,
-                                longitude: userLocation.longitude,
-                                latitudeDelta: 0.01, 
-                                longitudeDelta: 0.01
-                            }}>
-                        <MapView.Marker coordinate={userLocation}>
-                        </MapView.Marker>
-                    
-                        <MapView.Marker coordinate={homeLocation}>
-                        </MapView.Marker>
-
-                        {this.state.coordinates.map((coords, index) => (
-                            <MapView.Polyline key={index}
-                                            index={index}
-                                            coordinates={coords}
-                                            strokeWidth={2}
-                                            strokeColor="blue"></MapView.Polyline>
-                        ))}
-                    </MapView>
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.navigateHome} >
-                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to home</Text>
-                    </TouchableOpacity>
-                </View>     
-            </React.Fragment>);
+        const {userLocation, homeLocation, coordinates} = this.state; 
+        return(
+            <MapPlot startLocation={userLocation}
+                    endLocation={homeLocation}
+                    directionCoordinates={coordinates}
+                    buttonText="Take me home!"
+                    buttonFunction={this.navigateHome}>
+            </MapPlot>
+        );
     }
 }
 

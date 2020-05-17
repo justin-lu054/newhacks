@@ -1,43 +1,11 @@
 import React, { Component } from 'react';
-import { Alert, View, StyleSheet, Text, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
-import MapView from 'react-native-maps';
+import { Alert} from 'react-native';
 import Polyline from '@mapbox/polyline';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import getDirections from 'react-native-google-maps-directions';
-import { LinearGradient } from 'expo-linear-gradient';
 import apikeys from '../apikeys.json'; 
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 2,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-
-    buttonStyle: {
-        height: 100,
-        width: '100%',
-        backgroundColor: '#c471f5',
-        justifyContent: 'center',
-        alignItems: 'center',
-        opacity: 0.75,
-        borderRadius: 30
-    },
-    mapStyle: {
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height
-    }, 
-    loadingContainer: {
-        flex: 1,
-        justifyContent: "center"
-    }, 
-    loadingHorizontal: {
-        flexDirection: "row", 
-        justifyContent: "center"
-    }
-});
+import MapPlot from '../resources/MapPlot'; 
 
 
 class Food extends Component {
@@ -141,7 +109,7 @@ class Food extends Component {
             var userLocation = Object.values(this.state.userLocation).join(",");
             var coordinates = await this.getNearestRestaurant(this.state.userLocation.latitude, this.state.userLocation.longitude); 
             if (this.mounted) {
-                this.setState({foodLocation: coordinates}); 
+                this.setState({foodLocation: {latitude: coordinates.latitude, longitude: coordinates.longitude}, foodName: coordinates.name});
             } 
             var restaurantLocation = Object.values(coordinates).slice(0, 2).join(",");
             this.mapDirections(userLocation, restaurantLocation); 
@@ -154,57 +122,14 @@ class Food extends Component {
     }
 
     render() {
-        const { userLocation, foodLocation } = this.state;
-
-        //loading circle
-        if (!(userLocation && foodLocation)) {
-            return (
-                <React.Fragment>
-                    <View style={[styles.loadingContainer, styles.loadingHorizontal]}>
-                        <ActivityIndicator size="large"></ActivityIndicator>
-                    </View>
-                </React.Fragment>
-            );
-        }
-
+        const { userLocation, foodLocation, foodName, coordinates } = this.state;
         return (
-            <React.Fragment>
-                <View style={styles.container}>
-                    <TouchableOpacity title="Home" onPress={this.handleGetDirections}
-                    style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
-                        <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium', marginLeft: 15, marginRight: 10}}>
-                            {foodLocation ? "The nearest food is at " + foodLocation.name : "Loading..."}
-                        </Text>
-                    </TouchableOpacity>
-                    <MapView style={styles.mapStyle}
-                        region={{
-                            latitude: userLocation.latitude,
-                            longitude: userLocation.longitude,
-                            latitudeDelta: 0.01,
-                            longitudeDelta: 0.01
-                        }}>
-                        <MapView.Marker coordinate={userLocation}>
-                        </MapView.Marker>
-                        <MapView.Marker coordinate={{
-                            latitude: this.state.foodLocation.latitude,
-                            longitude: this.state.foodLocation.longitude
-                            }}>
-                        </MapView.Marker>
-                        {this.state.coordinates.map((coords, index) => (
-                            <MapView.Polyline key={index}
-                                index={index}
-                                coordinates={coords}
-                                strokeWidth={2}
-                                strokeColor="blue"></MapView.Polyline>
-                        ))}
-                    </MapView>
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity title="test" style={styles.buttonStyle} onPress={this.handleGetDirections} >
-                        <Text style={{ color: '#fff', fontSize: 30, fontFamily: 'Suisse-Intl-Medium' }}>take me to food</Text>
-                    </TouchableOpacity>
-                </View>
-            </React.Fragment>
+            <MapPlot startLocation={userLocation}
+                    endLocation={foodLocation}
+                    directionCoordinates={coordinates}
+                    buttonText="Take me to food!"
+                    buttonFunction={this.handleGetDirections}
+                    locationName={foodName}></MapPlot>
         );
     }
 }
