@@ -38,7 +38,7 @@ const MapPlot = (props) => {
         directionCoordinates, 
         buttonText, 
         buttonFunction, 
-        locationName} = props; 
+        topButtonText} = props; 
     
     //loading circle
     if (!(startLocation && endLocation)) {
@@ -52,16 +52,12 @@ const MapPlot = (props) => {
     return (
         <React.Fragment>
             <View style={styles.container}>
-                {locationName ? 
                 <TouchableOpacity title="Home" onPress={buttonFunction}
                 style={{ height: 100, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 290, backgroundColor: '#454545', borderRadius: 30, opacity: 0.75 }}>
                     <Text style={{ color: '#fff', fontSize: 22, fontFamily: 'Suisse-Intl-Medium', marginLeft: 15, marginRight: 10}}>
-                        {"The nearest food is at " + locationName}
+                        {topButtonText}
                     </Text>
                 </TouchableOpacity>
-                :
-                null
-                }
                 <MapView style={styles.mapStyle}
                     region={{
                         latitude: startLocation.latitude, 

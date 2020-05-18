@@ -129,7 +129,7 @@ class Food extends Component {
                     directionCoordinates={coordinates}
                     buttonText="Take me to food!"
                     buttonFunction={this.handleGetDirections}
-                    locationName={foodName}></MapPlot>
+                    topButtonText={"The nearest food is at " + foodName}></MapPlot>
         );
     }
 }

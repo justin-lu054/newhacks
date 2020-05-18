@@ -349,13 +349,14 @@ class GetHome extends Component {
     }
 
     render() {
-        const {userLocation, homeLocation, coordinates} = this.state; 
+        const {userLocation, homeLocation, coordinates, address} = this.state; 
         return(
             <MapPlot startLocation={userLocation}
                     endLocation={homeLocation}
                     directionCoordinates={coordinates}
                     buttonText="Take me home!"
-                    buttonFunction={this.navigateHome}>
+                    buttonFunction={this.navigateHome}
+                    topButtonText={"Your home address is: " + address}>
             </MapPlot>
         );
     }
